@@ -1,0 +1,85 @@
+// Copyright © 2019 Binance
+//
+// This file is part of Binance. The full Binance copyright notice, including
+// terms governing use, modification, and redistribution, is contained in the
+// file LICENSE at the root of the source code distribution tree.
+
+syntax = "proto3";
+package xlabs.tsscommon;
+option go_package = "./common";
+
+import "google/protobuf/any.proto";
+
+/*
+ * Wrapper for TSS messages, often read by the transport layer and not itself sent over the wire
+ */
+message MessageWrapper {
+  // PartyID represents a participant in the TSS protocol rounds.
+  // Note: The `id` and `moniker` are provided for convenience to allow you to track participants easier.
+  // The `id` is intended to be a unique string representation of `key` and `moniker` can be anything (even left blank).
+  message PartyID {
+    string id = 1;
+    string moniker = 2;
+    bytes key = 3;
+  }
+
+  // Metadata optionally un-marshalled and used by the transport to route this message.
+  bool is_broadcast = 1;
+  // Metadata optionally un-marshalled and used by the transport to route this message.
+  bool is_to_old_committee = 2; // used only in certain resharing messages
+  // Metadata optionally un-marshalled and used by the transport to route this message.
+  bool is_to_old_and_new_committees = 5; // used only in certain resharing messages
+
+  // Metadata optionally un-marshalled and used by the transport to route this message.
+  PartyID from = 3;
+  // Metadata optionally un-marshalled and used by the transport to route this message.
+  repeated PartyID to = 4;
+
+  // This field is actually what is sent through the wire and consumed on the other end by UpdateFromBytes.
+  // An Any contains an arbitrary serialized message as bytes, along with a URL that
+  // acts as a globally unique identifier for and resolves to that message's type.
+  google.protobuf.Any message = 10;
+
+  // Used to differentiate between simultaneous signing protocol runs.
+  optional TrackingID trackingID = 11;
+  string Protocol  = 12; // defines the protocol type.
+}
+
+
+
+
+// TrackingID is used to track the specific session when multiple sessions are running in parallel.
+// All messages tied to specific session should have the same TrackingID.
+message TrackingID{
+    // the digest of the message that is being signed.
+    bytes digest = 1;
+
+    // parties state indicate with true that a party is well, 
+    // and with false that a party is not well for this specific digest.
+    // the size of parties_state should allow enough bits to count all participating parties in the protocol.
+    bytes parties_state = 2;
+
+    // any auxilary data provided to the protocol from outside, and needs to be on every message.
+    bytes auxilary_data = 3;
+  }
+  
+/*
+ * Container for output signatures, mostly used for marshalling this data structure to a mobile app
+ */
+message SignatureData {
+    bytes signature = 1;
+
+    // Ethereum-style recovery byte; only the first byte is relevant
+    bytes signature_recovery = 2;
+
+    // Signature components R, S
+    bytes r = 3;
+    bytes s = 4;
+
+    // M represents the original message digest that was signed M
+    bytes m = 5;
+
+    // This value is set once a new local party is created.
+    // used to track the specific session when multiple sessions are running in parallel.
+    TrackingID tracking_id = 6;
+}
