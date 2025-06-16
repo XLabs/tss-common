@@ -10,10 +10,19 @@ import (
 	"fmt"
 
 	"google.golang.org/protobuf/proto"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
+const (
+	ProtocolEmpty ProtocolType = "Empty"
+	ProtocolECDSA ProtocolType = "ECDSA"
+	ProtocolFROST ProtocolType = "FROST"
+)
+
 type (
+	ProtocolType string
+
 	// Message describes the interface of the TSS Message for all protocols
 	Message interface {
 		// Type is encoded in the protobuf Any structure
@@ -42,6 +51,7 @@ type (
 		Message
 		Content() MessageContent
 		ValidateBasic() bool
+		GetProtocol() ProtocolType
 	}
 
 	// MessageContent represents a ProtoBuf message with validation logic
@@ -49,6 +59,7 @@ type (
 		proto.Message
 		ValidateBasic() bool
 		RoundNumber() int
+		ProtocolType() ProtocolType
 	}
 
 	// MessageRouting holds the full routing information for the message, consumed by the transport
@@ -68,11 +79,16 @@ type (
 	// Implements ParsedMessage; this is a concrete implementation of what messages produced by a LocalParty look like
 	MessageImpl struct {
 		MessageRouting
-		content MessageContent
-		wire    *MessageWrapper
-		round   int
+		content  MessageContent
+		wire     *MessageWrapper
+		protocol ProtocolType
 	}
 )
+
+// GetProtocol implements Message.
+func (mm *MessageImpl) GetProtocol() ProtocolType {
+	return mm.protocol
+}
 
 var (
 	_ Message       = (*MessageImpl)(nil)
@@ -85,7 +101,7 @@ var (
 // digest is an additional parameter
 func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingID ...*TrackingID) *MessageWrapper {
 	// marshal the content to the ProtoBuf Any type
-	any, _ := anypb.New(content)
+	anypbMsg, _ := anypb.New(content)
 	// convert given PartyIDs to the wire format
 	var to []*MessageWrapper_PartyID
 	if routing.To != nil {
@@ -101,7 +117,10 @@ func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingI
 		IsToOldAndNewCommittees: routing.IsToOldAndNewCommittees,
 		From:                    routing.From.MessageWrapper_PartyID,
 		To:                      to,
-		Message:                 any,
+		Message:                 anypbMsg,
+		Protocol:                string(content.ProtocolType()),
+		unknownFields:           protoimpl.UnknownFields{},
+		sizeCache:               0,
 	}
 
 	if len(trackingID) > 0 {
