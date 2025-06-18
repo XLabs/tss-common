@@ -108,7 +108,9 @@ func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingI
 	if routing.To != nil {
 		to = make([]*PartyID, len(routing.To))
 		for i := range routing.To {
-			to[i].ID = routing.To[i].ID
+			to[i] = &PartyID{
+				ID: routing.To[i].ID,
+			}
 		}
 	}
 
