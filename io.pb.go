@@ -28,6 +28,52 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Using a struct in case we want to add more fields in the future
+// This is used to identify a party in the TSS protocol. Must be unique.
+type PartyID struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PartyID) Reset() {
+	*x = PartyID{}
+	mi := &file_proto_io_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PartyID) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PartyID) ProtoMessage() {}
+
+func (x *PartyID) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_io_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PartyID.ProtoReflect.Descriptor instead.
+func (*PartyID) Descriptor() ([]byte, []int) {
+	return file_proto_io_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PartyID) GetID() string {
+	if x != nil {
+		return x.ID
+	}
+	return ""
+}
+
 // Wrapper for TSS messages, often read by the transport layer and not itself sent over the wire
 type MessageWrapper struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -38,9 +84,9 @@ type MessageWrapper struct {
 	// Metadata optionally un-marshalled and used by the transport to route this message.
 	IsToOldAndNewCommittees bool `protobuf:"varint,5,opt,name=is_to_old_and_new_committees,json=isToOldAndNewCommittees,proto3" json:"is_to_old_and_new_committees,omitempty"` // used only in certain resharing messages
 	// Metadata optionally un-marshalled and used by the transport to route this message.
-	From *MessageWrapper_PartyID `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	From *PartyID `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
 	// Metadata optionally un-marshalled and used by the transport to route this message.
-	To []*MessageWrapper_PartyID `protobuf:"bytes,4,rep,name=to,proto3" json:"to,omitempty"`
+	To []*PartyID `protobuf:"bytes,4,rep,name=to,proto3" json:"to,omitempty"`
 	// This field is actually what is sent through the wire and consumed on the other end by UpdateFromBytes.
 	// An Any contains an arbitrary serialized message as bytes, along with a URL that
 	// acts as a globally unique identifier for and resolves to that message's type.
@@ -54,7 +100,7 @@ type MessageWrapper struct {
 
 func (x *MessageWrapper) Reset() {
 	*x = MessageWrapper{}
-	mi := &file_proto_io_proto_msgTypes[0]
+	mi := &file_proto_io_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -66,7 +112,7 @@ func (x *MessageWrapper) String() string {
 func (*MessageWrapper) ProtoMessage() {}
 
 func (x *MessageWrapper) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_io_proto_msgTypes[0]
+	mi := &file_proto_io_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -79,7 +125,7 @@ func (x *MessageWrapper) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageWrapper.ProtoReflect.Descriptor instead.
 func (*MessageWrapper) Descriptor() ([]byte, []int) {
-	return file_proto_io_proto_rawDescGZIP(), []int{0}
+	return file_proto_io_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MessageWrapper) GetIsBroadcast() bool {
@@ -103,14 +149,14 @@ func (x *MessageWrapper) GetIsToOldAndNewCommittees() bool {
 	return false
 }
 
-func (x *MessageWrapper) GetFrom() *MessageWrapper_PartyID {
+func (x *MessageWrapper) GetFrom() *PartyID {
 	if x != nil {
 		return x.From
 	}
 	return nil
 }
 
-func (x *MessageWrapper) GetTo() []*MessageWrapper_PartyID {
+func (x *MessageWrapper) GetTo() []*PartyID {
 	if x != nil {
 		return x.To
 	}
@@ -156,7 +202,7 @@ type TrackingID struct {
 
 func (x *TrackingID) Reset() {
 	*x = TrackingID{}
-	mi := &file_proto_io_proto_msgTypes[1]
+	mi := &file_proto_io_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -168,7 +214,7 @@ func (x *TrackingID) String() string {
 func (*TrackingID) ProtoMessage() {}
 
 func (x *TrackingID) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_io_proto_msgTypes[1]
+	mi := &file_proto_io_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -181,7 +227,7 @@ func (x *TrackingID) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TrackingID.ProtoReflect.Descriptor instead.
 func (*TrackingID) Descriptor() ([]byte, []int) {
-	return file_proto_io_proto_rawDescGZIP(), []int{1}
+	return file_proto_io_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *TrackingID) GetDigest() []byte {
@@ -225,7 +271,7 @@ type SignatureData struct {
 
 func (x *SignatureData) Reset() {
 	*x = SignatureData{}
-	mi := &file_proto_io_proto_msgTypes[2]
+	mi := &file_proto_io_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -237,7 +283,7 @@ func (x *SignatureData) String() string {
 func (*SignatureData) ProtoMessage() {}
 
 func (x *SignatureData) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_io_proto_msgTypes[2]
+	mi := &file_proto_io_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +296,7 @@ func (x *SignatureData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignatureData.ProtoReflect.Descriptor instead.
 func (*SignatureData) Descriptor() ([]byte, []int) {
-	return file_proto_io_proto_rawDescGZIP(), []int{2}
+	return file_proto_io_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SignatureData) GetSignature() []byte {
@@ -295,90 +341,25 @@ func (x *SignatureData) GetTrackingId() *TrackingID {
 	return nil
 }
 
-// PartyID represents a participant in the TSS protocol rounds.
-// Note: The `id` and `moniker` are provided for convenience to allow you to track participants easier.
-// The `id` is intended to be a unique string representation of `key` and `moniker` can be anything (even left blank).
-type MessageWrapper_PartyID struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Moniker       string                 `protobuf:"bytes,2,opt,name=moniker,proto3" json:"moniker,omitempty"`
-	Key           []byte                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MessageWrapper_PartyID) Reset() {
-	*x = MessageWrapper_PartyID{}
-	mi := &file_proto_io_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MessageWrapper_PartyID) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MessageWrapper_PartyID) ProtoMessage() {}
-
-func (x *MessageWrapper_PartyID) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_io_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MessageWrapper_PartyID.ProtoReflect.Descriptor instead.
-func (*MessageWrapper_PartyID) Descriptor() ([]byte, []int) {
-	return file_proto_io_proto_rawDescGZIP(), []int{0, 0}
-}
-
-func (x *MessageWrapper_PartyID) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *MessageWrapper_PartyID) GetMoniker() string {
-	if x != nil {
-		return x.Moniker
-	}
-	return ""
-}
-
-func (x *MessageWrapper_PartyID) GetKey() []byte {
-	if x != nil {
-		return x.Key
-	}
-	return nil
-}
-
 var File_proto_io_proto protoreflect.FileDescriptor
 
 const file_proto_io_proto_rawDesc = "" +
 	"\n" +
-	"\x0eproto/io.proto\x12\x0fxlabs.tsscommon\x1a\x19google/protobuf/any.proto\"\xfb\x03\n" +
+	"\x0eproto/io.proto\x12\x0fxlabs.tsscommon\x1a\x19google/protobuf/any.proto\"\x19\n" +
+	"\aPartyID\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\tR\x02ID\"\x96\x03\n" +
 	"\x0eMessageWrapper\x12!\n" +
 	"\fis_broadcast\x18\x01 \x01(\bR\visBroadcast\x12-\n" +
 	"\x13is_to_old_committee\x18\x02 \x01(\bR\x10isToOldCommittee\x12=\n" +
-	"\x1cis_to_old_and_new_committees\x18\x05 \x01(\bR\x17isToOldAndNewCommittees\x12;\n" +
-	"\x04from\x18\x03 \x01(\v2'.xlabs.tsscommon.MessageWrapper.PartyIDR\x04from\x127\n" +
-	"\x02to\x18\x04 \x03(\v2'.xlabs.tsscommon.MessageWrapper.PartyIDR\x02to\x12.\n" +
+	"\x1cis_to_old_and_new_committees\x18\x05 \x01(\bR\x17isToOldAndNewCommittees\x12,\n" +
+	"\x04from\x18\x03 \x01(\v2\x18.xlabs.tsscommon.PartyIDR\x04from\x12(\n" +
+	"\x02to\x18\x04 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\x02to\x12.\n" +
 	"\amessage\x18\n" +
 	" \x01(\v2\x14.google.protobuf.AnyR\amessage\x12@\n" +
 	"\n" +
 	"trackingID\x18\v \x01(\v2\x1b.xlabs.tsscommon.TrackingIDH\x00R\n" +
 	"trackingID\x88\x01\x01\x12\x1a\n" +
-	"\bProtocol\x18\f \x01(\tR\bProtocol\x1aE\n" +
-	"\aPartyID\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\amoniker\x18\x02 \x01(\tR\amoniker\x12\x10\n" +
-	"\x03key\x18\x03 \x01(\fR\x03keyB\r\n" +
+	"\bProtocol\x18\f \x01(\tR\bProtocolB\r\n" +
 	"\v_trackingID\"n\n" +
 	"\n" +
 	"TrackingID\x12\x16\n" +
@@ -409,18 +390,18 @@ func file_proto_io_proto_rawDescGZIP() []byte {
 
 var file_proto_io_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_proto_io_proto_goTypes = []any{
-	(*MessageWrapper)(nil),         // 0: xlabs.tsscommon.MessageWrapper
-	(*TrackingID)(nil),             // 1: xlabs.tsscommon.TrackingID
-	(*SignatureData)(nil),          // 2: xlabs.tsscommon.SignatureData
-	(*MessageWrapper_PartyID)(nil), // 3: xlabs.tsscommon.MessageWrapper.PartyID
-	(*anypb.Any)(nil),              // 4: google.protobuf.Any
+	(*PartyID)(nil),        // 0: xlabs.tsscommon.PartyID
+	(*MessageWrapper)(nil), // 1: xlabs.tsscommon.MessageWrapper
+	(*TrackingID)(nil),     // 2: xlabs.tsscommon.TrackingID
+	(*SignatureData)(nil),  // 3: xlabs.tsscommon.SignatureData
+	(*anypb.Any)(nil),      // 4: google.protobuf.Any
 }
 var file_proto_io_proto_depIdxs = []int32{
-	3, // 0: xlabs.tsscommon.MessageWrapper.from:type_name -> xlabs.tsscommon.MessageWrapper.PartyID
-	3, // 1: xlabs.tsscommon.MessageWrapper.to:type_name -> xlabs.tsscommon.MessageWrapper.PartyID
+	0, // 0: xlabs.tsscommon.MessageWrapper.from:type_name -> xlabs.tsscommon.PartyID
+	0, // 1: xlabs.tsscommon.MessageWrapper.to:type_name -> xlabs.tsscommon.PartyID
 	4, // 2: xlabs.tsscommon.MessageWrapper.message:type_name -> google.protobuf.Any
-	1, // 3: xlabs.tsscommon.MessageWrapper.trackingID:type_name -> xlabs.tsscommon.TrackingID
-	1, // 4: xlabs.tsscommon.SignatureData.tracking_id:type_name -> xlabs.tsscommon.TrackingID
+	2, // 3: xlabs.tsscommon.MessageWrapper.trackingID:type_name -> xlabs.tsscommon.TrackingID
+	2, // 4: xlabs.tsscommon.SignatureData.tracking_id:type_name -> xlabs.tsscommon.TrackingID
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -433,7 +414,7 @@ func file_proto_io_proto_init() {
 	if File_proto_io_proto != nil {
 		return
 	}
-	file_proto_io_proto_msgTypes[0].OneofWrappers = []any{}
+	file_proto_io_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

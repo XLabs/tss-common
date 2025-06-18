@@ -27,12 +27,15 @@ func parseWrappedMessage(wire *MessageWrapper, from *PartyID) (ParsedMessage, er
 	if err != nil {
 		return nil, err
 	}
+
 	meta := MessageRouting{
 		From:        from,
 		IsBroadcast: wire.IsBroadcast,
 	}
+
 	if content, ok := m.(MessageContent); ok {
 		return NewMessage(meta, content, wire), nil
 	}
+
 	return nil, errors.New("ParseWireMessage: the message contained unknown content")
 }

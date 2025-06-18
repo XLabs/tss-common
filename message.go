@@ -44,6 +44,8 @@ type (
 		WireMsg() *MessageWrapper
 
 		String() string
+
+		GetProtocol() ProtocolType
 	}
 
 	// ParsedMessage represents a message with inner ProtoBuf message content
@@ -51,7 +53,6 @@ type (
 		Message
 		Content() MessageContent
 		ValidateBasic() bool
-		GetProtocol() ProtocolType
 	}
 
 	// MessageContent represents a ProtoBuf message with validation logic
@@ -59,7 +60,7 @@ type (
 		proto.Message
 		ValidateBasic() bool
 		RoundNumber() int
-		ProtocolType() ProtocolType
+		GetProtocol() ProtocolType
 	}
 
 	// MessageRouting holds the full routing information for the message, consumed by the transport
@@ -103,11 +104,11 @@ func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingI
 	// marshal the content to the ProtoBuf Any type
 	anypbMsg, _ := anypb.New(content)
 	// convert given PartyIDs to the wire format
-	var to []*MessageWrapper_PartyID
+	var to []*PartyID
 	if routing.To != nil {
-		to = make([]*MessageWrapper_PartyID, len(routing.To))
+		to = make([]*PartyID, len(routing.To))
 		for i := range routing.To {
-			to[i] = routing.To[i].MessageWrapper_PartyID
+			to[i].ID = routing.To[i].ID
 		}
 	}
 
@@ -115,10 +116,10 @@ func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingI
 		IsBroadcast:             routing.IsBroadcast,
 		IsToOldCommittee:        routing.IsToOldCommittee,
 		IsToOldAndNewCommittees: routing.IsToOldAndNewCommittees,
-		From:                    routing.From.MessageWrapper_PartyID,
+		From:                    routing.From,
 		To:                      to,
 		Message:                 anypbMsg,
-		Protocol:                string(content.ProtocolType()),
+		Protocol:                string(content.GetProtocol()),
 		unknownFields:           protoimpl.UnknownFields{},
 		sizeCache:               0,
 	}
@@ -137,6 +138,7 @@ func NewMessage(meta MessageRouting, content MessageContent, wire *MessageWrappe
 		MessageRouting: meta,
 		content:        content,
 		wire:           wire,
+		protocol:       content.GetProtocol(),
 	}
 }
 

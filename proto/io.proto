@@ -10,19 +10,15 @@ option go_package = "./common";
 
 import "google/protobuf/any.proto";
 
+
+// Using a struct in case we want to add more fields in the future
+// This is used to identify a party in the TSS protocol. Must be unique.
+message PartyID { string ID = 1; }
+
 /*
  * Wrapper for TSS messages, often read by the transport layer and not itself sent over the wire
  */
 message MessageWrapper {
-  // PartyID represents a participant in the TSS protocol rounds.
-  // Note: The `id` and `moniker` are provided for convenience to allow you to track participants easier.
-  // The `id` is intended to be a unique string representation of `key` and `moniker` can be anything (even left blank).
-  message PartyID {
-    string id = 1;
-    string moniker = 2;
-    bytes key = 3;
-  }
-
   // Metadata optionally un-marshalled and used by the transport to route this message.
   bool is_broadcast = 1;
   // Metadata optionally un-marshalled and used by the transport to route this message.
