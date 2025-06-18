@@ -157,7 +157,7 @@ func (mm *MessageImpl) GetFrom() *PartyID {
 }
 
 func (mm *MessageImpl) IsBroadcast() bool {
-	return mm.wire.IsBroadcast
+	return mm.wire.IsBroadcast || len(mm.To) == 0
 }
 
 // only `true` in DGRound2Message (resharing)
