@@ -20,6 +20,26 @@ func (pid *PartyID) ValidateBasic() bool {
 	return pid != nil && pid.ID != ""
 }
 
+func (p *PartyID) Equals(other *PartyID) bool {
+	if p == nil && other == nil {
+		return true
+	}
+
+	if p == nil || other == nil {
+		return false
+	}
+
+	return p.GetID() == other.GetID()
+}
+
+func (p *PartyID) ToString() string {
+	if p == nil {
+		return ""
+	}
+
+	return p.GetID()
+}
+
 // SortPartyIDs sorts a list of []*PartyID by their keys in ascending order
 func SortPartyIDs(ids UnSortedPartyIDs) SortedPartyIDs {
 	sorted := make(SortedPartyIDs, 0, len(ids))
@@ -38,24 +58,12 @@ func (committee UnSortedPartyIDs) IsInCommittee(self *PartyID) bool {
 
 func (committee UnSortedPartyIDs) IndexInCommittee(self *PartyID) int {
 	for i, v := range committee {
-		if EqualIDs(v, self) {
+		if self.Equals(v) {
 			return i
 		}
 	}
 
 	return -1
-}
-
-func EqualIDs(a, b *PartyID) bool {
-	if a == nil && b == nil {
-		return true
-	}
-
-	if a == nil || b == nil {
-		return false
-	}
-
-	return a.GetID() == b.GetID()
 }
 
 // Sortable
