@@ -157,7 +157,7 @@ func (mm *MessageImpl) GetFrom() *PartyID {
 }
 
 func (mm *MessageImpl) IsBroadcast() bool {
-	return mm.wire.IsBroadcast || len(mm.To) == 0
+	return mm.wire.IsBroadcast
 }
 
 // only `true` in DGRound2Message (resharing)
@@ -194,7 +194,11 @@ func (mm *MessageImpl) Content() MessageContent {
 }
 
 func (mm *MessageImpl) ValidateBasic() bool {
-	return mm.content.ValidateBasic()
+	// either isBroadcast and To is empty. Or to is not empty and is not broadcast.
+	validRecipient := (mm.IsBroadcast() && len(mm.To) == 0) ||
+		(len(mm.To) > 0 && !mm.IsBroadcast())
+
+	return validRecipient && mm.content.ValidateBasic()
 }
 
 func (mm *MessageImpl) String() string {
