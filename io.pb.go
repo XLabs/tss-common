@@ -78,15 +78,13 @@ func (x *PartyID) GetID() string {
 type MessageWrapper struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Metadata optionally un-marshalled and used by the transport to route this message.
-	IsBroadcast bool `protobuf:"varint,1,opt,name=is_broadcast,json=isBroadcast,proto3" json:"is_broadcast,omitempty"`
-	// Metadata optionally un-marshalled and used by the transport to route this message.
 	IsToOldCommittee bool `protobuf:"varint,2,opt,name=is_to_old_committee,json=isToOldCommittee,proto3" json:"is_to_old_committee,omitempty"` // used only in certain resharing messages
 	// Metadata optionally un-marshalled and used by the transport to route this message.
 	IsToOldAndNewCommittees bool `protobuf:"varint,5,opt,name=is_to_old_and_new_committees,json=isToOldAndNewCommittees,proto3" json:"is_to_old_and_new_committees,omitempty"` // used only in certain resharing messages
 	// Metadata optionally un-marshalled and used by the transport to route this message.
 	From *PartyID `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
 	// Metadata optionally un-marshalled and used by the transport to route this message.
-	To []*PartyID `protobuf:"bytes,4,rep,name=to,proto3" json:"to,omitempty"`
+	To *PartyID `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
 	// This field is actually what is sent through the wire and consumed on the other end by UpdateFromBytes.
 	// An Any contains an arbitrary serialized message as bytes, along with a URL that
 	// acts as a globally unique identifier for and resolves to that message's type.
@@ -128,13 +126,6 @@ func (*MessageWrapper) Descriptor() ([]byte, []int) {
 	return file_proto_io_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MessageWrapper) GetIsBroadcast() bool {
-	if x != nil {
-		return x.IsBroadcast
-	}
-	return false
-}
-
 func (x *MessageWrapper) GetIsToOldCommittee() bool {
 	if x != nil {
 		return x.IsToOldCommittee
@@ -156,7 +147,7 @@ func (x *MessageWrapper) GetFrom() *PartyID {
 	return nil
 }
 
-func (x *MessageWrapper) GetTo() []*PartyID {
+func (x *MessageWrapper) GetTo() *PartyID {
 	if x != nil {
 		return x.To
 	}
@@ -347,13 +338,12 @@ const file_proto_io_proto_rawDesc = "" +
 	"\n" +
 	"\x0eproto/io.proto\x12\x0fxlabs.tsscommon\x1a\x19google/protobuf/any.proto\"\x19\n" +
 	"\aPartyID\x12\x0e\n" +
-	"\x02ID\x18\x01 \x01(\tR\x02ID\"\x96\x03\n" +
-	"\x0eMessageWrapper\x12!\n" +
-	"\fis_broadcast\x18\x01 \x01(\bR\visBroadcast\x12-\n" +
+	"\x02ID\x18\x01 \x01(\tR\x02ID\"\xf3\x02\n" +
+	"\x0eMessageWrapper\x12-\n" +
 	"\x13is_to_old_committee\x18\x02 \x01(\bR\x10isToOldCommittee\x12=\n" +
 	"\x1cis_to_old_and_new_committees\x18\x05 \x01(\bR\x17isToOldAndNewCommittees\x12,\n" +
 	"\x04from\x18\x03 \x01(\v2\x18.xlabs.tsscommon.PartyIDR\x04from\x12(\n" +
-	"\x02to\x18\x04 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\x02to\x12.\n" +
+	"\x02to\x18\x04 \x01(\v2\x18.xlabs.tsscommon.PartyIDR\x02to\x12.\n" +
 	"\amessage\x18\n" +
 	" \x01(\v2\x14.google.protobuf.AnyR\amessage\x12@\n" +
 	"\n" +

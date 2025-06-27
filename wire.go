@@ -13,29 +13,38 @@ import (
 )
 
 // Used externally to update a LocalParty with a valid ParsedMessage
-func ParseWireMessage(wireBytes []byte, from *PartyID, isBroadcast bool) (ParsedMessage, error) {
+// set the `to` field to nil if the message is a broadcast.
+// if it was direct communication, set the `to` field to the PartyID of the recipient.
+func ParseWireMessage(wireBytes []byte, from, to *PartyID) (ParsedMessage, error) {
 	wire := new(MessageWrapper)
 	if err := proto.Unmarshal(wireBytes, wire); err != nil {
 		return nil, err
 	}
 
-	return parseWrappedMessage(wire, from)
+	return parseWrappedMessage(wire, from, to)
 }
 
-func parseWrappedMessage(wire *MessageWrapper, from *PartyID) (ParsedMessage, error) {
+var errParse = errors.New("ParseWireMessage: the message contained unknown content")
+
+func parseWrappedMessage(wire *MessageWrapper, from, to *PartyID) (ParsedMessage, error) {
 	m, err := wire.Message.UnmarshalNew()
 	if err != nil {
 		return nil, err
 	}
 
 	meta := MessageRouting{
-		From:        from,
-		IsBroadcast: wire.IsBroadcast,
+		From: from,
+		To:   to,
+	}
+	// wire is marshalled without these fields to reduce network bandwidth, but we need them in a parsed message to
+	// match the messageRouting struct.
+	wire.From = meta.From
+	wire.To = meta.To
+
+	content, ok := m.(MessageContent)
+	if !ok {
+		return nil, errParse
 	}
 
-	if content, ok := m.(MessageContent); ok {
-		return NewMessage(meta, content, wire), nil
-	}
-
-	return nil, errors.New("ParseWireMessage: the message contained unknown content")
+	return NewMessage(meta, content, wire), nil
 }

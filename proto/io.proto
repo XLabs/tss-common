@@ -20,8 +20,6 @@ message PartyID { string ID = 1; }
  */
 message MessageWrapper {
   // Metadata optionally un-marshalled and used by the transport to route this message.
-  bool is_broadcast = 1;
-  // Metadata optionally un-marshalled and used by the transport to route this message.
   bool is_to_old_committee = 2; // used only in certain resharing messages
   // Metadata optionally un-marshalled and used by the transport to route this message.
   bool is_to_old_and_new_committees = 5; // used only in certain resharing messages
@@ -29,7 +27,7 @@ message MessageWrapper {
   // Metadata optionally un-marshalled and used by the transport to route this message.
   PartyID from = 3;
   // Metadata optionally un-marshalled and used by the transport to route this message.
-  repeated PartyID to = 4;
+  PartyID to = 4;
 
   // This field is actually what is sent through the wire and consumed on the other end by UpdateFromBytes.
   // An Any contains an arbitrary serialized message as bytes, along with a URL that

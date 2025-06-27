@@ -1,9 +1,5 @@
-// Copyright © 2019 Binance
-//
-// This file is part of Binance. The full Binance copyright notice, including
-// terms governing use, modification, and redistribution, is contained in the
-// file LICENSE at the root of the source code distribution tree.
-
+// TODO: use To as a single PartyID instead of a slice, and remove the variable of isBroadcast.
+// if To is nil -> it's a broadcast. Fix everything accordingly.
 package common
 
 import (
@@ -28,7 +24,7 @@ type (
 		// Type is encoded in the protobuf Any structure
 		Type() string
 		// The set of parties that this message should be sent to
-		GetTo() []*PartyID
+		GetTo() *PartyID
 		// The party that this message is from
 		GetFrom() *PartyID
 		// Indicates whether the message should be broadcast to other participants
@@ -68,9 +64,7 @@ type (
 		// which participant this message came from
 		From *PartyID
 		// when `nil` the message should be broadcast to all parties
-		To []*PartyID
-		// whether the message should be broadcast to other participants
-		IsBroadcast bool
+		To *PartyID
 		// whether the message should be sent to old committee participants rather than the new committee
 		IsToOldCommittee bool
 		// whether the message should be sent to both old and new committee participants
@@ -104,18 +98,15 @@ func NewMessageWrapper(routing MessageRouting, content MessageContent, trackingI
 	// marshal the content to the ProtoBuf Any type
 	anypbMsg, _ := anypb.New(content)
 	// convert given PartyIDs to the wire format
-	var to []*PartyID
+	var to *PartyID = nil // broadcast
 	if routing.To != nil {
-		to = make([]*PartyID, len(routing.To))
-		for i := range routing.To {
-			to[i] = &PartyID{
-				ID: routing.To[i].ID,
-			}
+		// direct message
+		to = &PartyID{
+			ID: routing.To.ID,
 		}
 	}
 
 	m := &MessageWrapper{
-		IsBroadcast:             routing.IsBroadcast,
 		IsToOldCommittee:        routing.IsToOldCommittee,
 		IsToOldAndNewCommittees: routing.IsToOldAndNewCommittees,
 		From:                    routing.From,
@@ -148,7 +139,7 @@ func (mm *MessageImpl) Type() string {
 	return string(proto.MessageName(mm.content))
 }
 
-func (mm *MessageImpl) GetTo() []*PartyID {
+func (mm *MessageImpl) GetTo() *PartyID {
 	return mm.To
 }
 
@@ -157,7 +148,7 @@ func (mm *MessageImpl) GetFrom() *PartyID {
 }
 
 func (mm *MessageImpl) IsBroadcast() bool {
-	return mm.wire.IsBroadcast
+	return mm.GetTo() == nil || mm.GetTo().ID == ""
 }
 
 // only `true` in DGRound2Message (resharing)
@@ -194,11 +185,7 @@ func (mm *MessageImpl) Content() MessageContent {
 }
 
 func (mm *MessageImpl) ValidateBasic() bool {
-	// either isBroadcast and To is empty. Or to is not empty and is not broadcast.
-	validRecipient := (mm.IsBroadcast() && len(mm.To) == 0) ||
-		(len(mm.To) > 0 && !mm.IsBroadcast())
-
-	return validRecipient && mm.content.ValidateBasic()
+	return mm.content.ValidateBasic()
 }
 
 func (mm *MessageImpl) String() string {
@@ -211,4 +198,8 @@ func (mm *MessageImpl) String() string {
 		extraStr = " (To Old Committee)"
 	}
 	return fmt.Sprintf("Type: %s, From: %s, To: %s%s", mm.Type(), mm.From.String(), toStr, extraStr)
+}
+
+func (m *MessageRouting) IsBroadcast() bool {
+	return m.To == nil || m.To.ID == ""
 }
