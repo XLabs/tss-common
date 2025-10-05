@@ -16,6 +16,19 @@ const (
 	ProtocolFROST ProtocolType = "FROST"
 )
 
+func (p ProtocolType) ToString() string {
+	return string(p)
+}
+
+func isValidProtocolType(s string) bool {
+	switch ProtocolType(s) {
+	case ProtocolEmpty, ProtocolFROST, ProtocolECDSA:
+		return true
+	default:
+		return false
+	}
+}
+
 type (
 	ProtocolType string
 

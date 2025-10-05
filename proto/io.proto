@@ -55,6 +55,8 @@ message TrackingID{
 
     // any auxilary data provided to the protocol from outside, and needs to be on every message.
     bytes auxilary_data = 3;
+
+    bytes protocol = 4; // defines the protocol type.
   }
   
 /*
