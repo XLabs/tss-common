@@ -46,15 +46,18 @@ message MessageWrapper {
 // All messages tied to specific session should have the same TrackingID.
 message TrackingID{
     // the digest of the message that is being signed.
-    bytes digest = 1;
+    uint32 protocol = 1; // defines the protocol type (uses a single byte)
+
+    bytes digest = 2;
 
     // parties state indicate with true that a party is well, 
     // and with false that a party is not well for this specific digest.
     // the size of parties_state should allow enough bits to count all participating parties in the protocol.
-    bytes parties_state = 2;
+    bytes parties_state = 3;
 
-    // any auxilary data provided to the protocol from outside, and needs to be on every message.
-    bytes auxilary_data = 3;
+    // any auxiliary data provided to the protocol from outside, and needs to be on every message.
+    bytes auxiliary_data = 4;
+
   }
   
 /*
