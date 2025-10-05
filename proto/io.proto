@@ -55,8 +55,8 @@ message TrackingID{
     // the size of parties_state should allow enough bits to count all participating parties in the protocol.
     bytes parties_state = 3;
 
-    // any auxilary data provided to the protocol from outside, and needs to be on every message.
-    bytes auxilary_data = 4;
+    // any auxiliary data provided to the protocol from outside, and needs to be on every message.
+    bytes auxiliary_data = 4;
 
   }
   

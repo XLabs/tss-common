@@ -18,15 +18,15 @@ func TestTrackidToStr(t *testing.T) {
 			expected: "nilTrackID",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{4, 5, 6}, AuxilaryData: []byte{7, 8, 9}},
+			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
 			expected: "1-0102030000000000000000000000000000000000000000000000000000000000-040506-070809",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxilaryData: []byte{16, 17, 18}},
+			input:    &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
 			expected: "1-0a0b0c0000000000000000000000000000000000000000000000000000000000-0d0e0f-101112",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: nil, AuxilaryData: nil},
+			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: nil, AuxiliaryData: nil},
 			expected: "0-0102030000000000000000000000000000000000000000000000000000000000--",
 		},
 	}
@@ -48,15 +48,15 @@ func TestTrackingIdFromString(t *testing.T) {
 		}{
 			{
 				input:    "0-0102030000000000000000000000000000000000000000000000000000000000-040506-070809",
-				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: []byte{4, 5, 6}, AuxilaryData: []byte{7, 8, 9}},
+				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
 			},
 			{
 				input:    "1-0a0b0c0000000000000000000000000000000000000000000000000000000000-0d0e0f-101112",
-				expected: &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxilaryData: []byte{16, 17, 18}},
+				expected: &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
 			},
 			{
 				input:    "1-0102030000000000000000000000000000000000000000000000000000000000--",
-				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: nil, AuxilaryData: nil},
+				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: nil, AuxiliaryData: nil},
 			},
 		}
 
@@ -227,10 +227,10 @@ func TestTrackingID_BitLenAndPartyStateOk(t *testing.T) {
 
 func TestTrackingID_ToStringAndToByteString(t *testing.T) {
 	tid := &TrackingID{
-		Protocol:     1,
-		Digest:       []byte{0xDE, 0xAD, 0xBE, 0xEF},
-		PartiesState: []byte{0x01, 0x02},
-		AuxilaryData: []byte{0xCA, 0xFE},
+		Protocol:      1,
+		Digest:        []byte{0xDE, 0xAD, 0xBE, 0xEF},
+		PartiesState:  []byte{0x01, 0x02},
+		AuxiliaryData: []byte{0xCA, 0xFE},
 	}
 	want := tid.ToString()
 
@@ -241,36 +241,36 @@ func TestTrackingID_ToStringAndToByteString(t *testing.T) {
 
 func TestTrackingID_Equals(t *testing.T) {
 	base := &TrackingID{
-		Protocol:     2,
-		Digest:       []byte{1, 2, 3, 4},
-		PartiesState: []byte{5, 6, 7, 8},
-		AuxilaryData: []byte{9, 10},
+		Protocol:      2,
+		Digest:        []byte{1, 2, 3, 4},
+		PartiesState:  []byte{5, 6, 7, 8},
+		AuxiliaryData: []byte{9, 10},
 	}
 	// Same values (different backing slices)
 	otherSame := &TrackingID{
-		Protocol:     2,
-		Digest:       []byte{1, 2, 3, 4},
-		PartiesState: []byte{5, 6, 7, 8},
-		AuxilaryData: []byte{9, 10},
+		Protocol:      2,
+		Digest:        []byte{1, 2, 3, 4},
+		PartiesState:  []byte{5, 6, 7, 8},
+		AuxiliaryData: []byte{9, 10},
 	}
 	if !base.Equals(otherSame) {
 		t.Fatalf("Equals should be true for identical content")
 	}
 
 	// Different protocol
-	diffProt := &TrackingID{Protocol: 3, Digest: base.Digest, PartiesState: base.PartiesState, AuxilaryData: base.AuxilaryData}
+	diffProt := &TrackingID{Protocol: 3, Digest: base.Digest, PartiesState: base.PartiesState, AuxiliaryData: base.AuxiliaryData}
 	if base.Equals(diffProt) {
 		t.Fatalf("Equals should be false for different Protocol")
 	}
 
 	// Different digest (but same length)
-	diffDigest := &TrackingID{Protocol: base.Protocol, Digest: []byte{1, 2, 3, 9}, PartiesState: base.PartiesState, AuxilaryData: base.AuxilaryData}
+	diffDigest := &TrackingID{Protocol: base.Protocol, Digest: []byte{1, 2, 3, 9}, PartiesState: base.PartiesState, AuxiliaryData: base.AuxiliaryData}
 	if base.Equals(diffDigest) {
 		t.Fatalf("Equals should be false for different Digest")
 	}
 
 	// Different lengths: Equals pads to 32 bytes; ensure mismatch still detected
-	diffLen := &TrackingID{Protocol: base.Protocol, Digest: []byte{1, 2, 3}, PartiesState: base.PartiesState, AuxilaryData: base.AuxilaryData}
+	diffLen := &TrackingID{Protocol: base.Protocol, Digest: []byte{1, 2, 3}, PartiesState: base.PartiesState, AuxiliaryData: base.AuxiliaryData}
 	if base.Equals(diffLen) {
 		t.Fatalf("Equals should be false for different Digest content/length")
 	}
@@ -310,8 +310,8 @@ func TestTrackingID_FromString_RoundTripIfProtocolAllowed(t *testing.T) {
 	if !bytes.Equal(tid.PartiesState, parties) {
 		t.Fatalf("PartiesState mismatch")
 	}
-	if !bytes.Equal(tid.AuxilaryData, aux) {
-		t.Fatalf("AuxilaryData mismatch")
+	if !bytes.Equal(tid.AuxiliaryData, aux) {
+		t.Fatalf("AuxiliaryData mismatch")
 	}
 
 	// Round-trip format
@@ -342,8 +342,8 @@ func TestTrackingID_FromString_ValidBoundaryLengths(t *testing.T) {
 	if !bytes.Equal(tid.PartiesState, bytes.Repeat([]byte{0xbb}, 32)) {
 		t.Fatalf("PartiesState bytes mismatch: got %x", tid.PartiesState)
 	}
-	if !bytes.Equal(tid.AuxilaryData, bytes.Repeat([]byte{0xcc}, 32)) {
-		t.Fatalf("AuxilaryData bytes mismatch: got %x", tid.AuxilaryData)
+	if !bytes.Equal(tid.AuxiliaryData, bytes.Repeat([]byte{0xcc}, 32)) {
+		t.Fatalf("AuxiliaryData bytes mismatch: got %x", tid.AuxiliaryData)
 	}
 }
 
@@ -358,8 +358,8 @@ func TestTrackingID_FromString_EmptyPartiesAndAuxAllowed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error with empty parties/aux: %v", err)
 	}
-	if len(tid.PartiesState) != 0 || len(tid.AuxilaryData) != 0 {
-		t.Fatalf("expected empty PartiesState and AuxilaryData")
+	if len(tid.PartiesState) != 0 || len(tid.AuxiliaryData) != 0 {
+		t.Fatalf("expected empty PartiesState and AuxiliaryData")
 	}
 }
 
