@@ -8,16 +8,25 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
+// ProtocolType represents the type of cryptographic protocol in use.
 type ProtocolType string
 
 const (
-	ProtocolEmpty ProtocolType = "Empty"
-	ProtocolECDSA ProtocolType = "ECDSA"
-	ProtocolFROST ProtocolType = "FROST"
+	// String protocol identifiers
+	ProtocolFROSTSign ProtocolType = "FROST:SIGN"
+	ProtocolFROSTDKG  ProtocolType = "FROST:DKG"
+	ProtocolECDSASign ProtocolType = "ECDSA:SIGN"
+	ProtocolECDSADKG  ProtocolType = "ECDSA:DKG"
+)
 
-	emptyInt = 0
-	frostInt = 1
-	ecdsaInt = 2
+// Integer protocol identifiers (useful for internal indexing, enums, etc.)
+const (
+	protocolTypeMin = iota
+	protocolTypeFROSTSign
+	protocolTypeFROSTDKG
+	protocolTypeECDSASign
+	protocolTypeECDSADKG
+	protocolTypeMax
 )
 
 func (p ProtocolType) ToString() string {
@@ -26,19 +35,21 @@ func (p ProtocolType) ToString() string {
 
 func (p ProtocolType) ToInt() int {
 	switch p {
-	case ProtocolEmpty:
-		return emptyInt
-	case ProtocolFROST:
-		return frostInt
-	case ProtocolECDSA:
-		return ecdsaInt
+	case ProtocolFROSTSign:
+		return protocolTypeFROSTSign
+	case ProtocolFROSTDKG:
+		return protocolTypeFROSTDKG
+	case ProtocolECDSASign:
+		return protocolTypeECDSASign
+	case ProtocolECDSADKG:
+		return protocolTypeECDSADKG
 	default:
 		return -1
 	}
 }
 
 func isValidProtocolType(n int) bool {
-	return n == emptyInt || n == frostInt || n == ecdsaInt
+	return n > protocolTypeMin && n < protocolTypeMax
 }
 
 type (

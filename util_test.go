@@ -18,16 +18,16 @@ func TestTrackidToStr(t *testing.T) {
 			expected: "nilTrackID",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
+			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROSTSign.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
 			expected: "1-0102030000000000000000000000000000000000000000000000000000000000-040506-070809",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
-			expected: "1-0a0b0c0000000000000000000000000000000000000000000000000000000000-0d0e0f-101112",
+			input:    &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROSTDKG.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
+			expected: "2-0a0b0c0000000000000000000000000000000000000000000000000000000000-0d0e0f-101112",
 		},
 		{
-			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: nil, AuxiliaryData: nil},
-			expected: "0-0102030000000000000000000000000000000000000000000000000000000000--",
+			input:    &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROSTSign.ToInt()), PartiesState: nil, AuxiliaryData: nil},
+			expected: "1-0102030000000000000000000000000000000000000000000000000000000000--",
 		},
 	}
 
@@ -47,16 +47,16 @@ func TestTrackingIdFromString(t *testing.T) {
 			expected *TrackingID
 		}{
 			{
-				input:    "0-0102030000000000000000000000000000000000000000000000000000000000-040506-070809",
-				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolEmpty.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
+				input:    "1-0102030000000000000000000000000000000000000000000000000000000000-040506-070809",
+				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROSTSign.ToInt()), PartiesState: []byte{4, 5, 6}, AuxiliaryData: []byte{7, 8, 9}},
 			},
 			{
 				input:    "1-0a0b0c0000000000000000000000000000000000000000000000000000000000-0d0e0f-101112",
-				expected: &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
+				expected: &TrackingID{Digest: []byte{10, 11, 12}, Protocol: uint32(ProtocolFROSTSign.ToInt()), PartiesState: []byte{13, 14, 15}, AuxiliaryData: []byte{16, 17, 18}},
 			},
 			{
 				input:    "1-0102030000000000000000000000000000000000000000000000000000000000--",
-				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROST.ToInt()), PartiesState: nil, AuxiliaryData: nil},
+				expected: &TrackingID{Digest: []byte{1, 2, 3}, Protocol: uint32(ProtocolFROSTSign.ToInt()), PartiesState: nil, AuxiliaryData: nil},
 			},
 		}
 
@@ -96,20 +96,20 @@ func TestTrackingIdFromString(t *testing.T) {
 			{"-abcd--", false, errTrackidMustHaveProtocolType},                   // empty protocol
 			{fmt.Sprintf("-%s-ff-", b64), false, errTrackidMustHaveProtocolType}, // empty protocol with valid 64-hex digest
 			{fmt.Sprintf("123-%s-ff-", b64), false, errTrackidPartTooLong},       // protocol too long (>2 chars)
-			{"4-efff--", false, errUnknownProtocolType},                          // unknown protocol
-			{"40-efff--", false, errUnknownProtocolType},                         // unknown protocol
+			{"0-efff--", false, errUnknownProtocolType},                          // unknown protocol
+			{"9-efff--", false, errUnknownProtocolType},                          // unknown protocol
 			{"12140-efff--", false, errTrackidPartTooLong},
 			{"ab-efff--", false, nil}, // non-integer protocol (no sentinel; just expect non-nil error)
 
 			// --- digest problems ---
-			{"0--abcd-abcd", false, errTrackidMustHaveDigest}, // empty digest
+			{"1--abcd-abcd", false, errTrackidMustHaveDigest}, // empty digest
 			{"1-0a-ff-", false, errTrackingIDigestLength},     // digest too short
-			{"0-0102030000000000000000000000000000000000000000000000000000000000-1111111111111111111111111111111111111111111111111111111111111111111-", false, errTrackidPartTooLong},     // 3rd too long
-			{"0-0102030000000000000000000000000000000000000000000000000000000000-def0-1111111111111111111111111111111111111111111111111111111111111111111", false, errTrackidPartTooLong}, // 4th too long
+			{"1-0102030000000000000000000000000000000000000000000000000000000000-1111111111111111111111111111111111111111111111111111111111111111111-", false, errTrackidPartTooLong},     // 3rd too long
+			{"1-0102030000000000000000000000000000000000000000000000000000000000-def0-1111111111111111111111111111111111111111111111111111111111111111111", false, errTrackidPartTooLong}, // 4th too long
 			{fmt.Sprintf("1-%s-ff-", z64), false, nil}, // non-hex digest (no sentinel; just expect non-nil error)
 
 			// --- valid boundary/within-limit sanity checks (keep here so one place asserts behavior) ---
-			{"0-0102030000000000000000000000000000000000000000000000000000000000--", true, nil},   // within limit
+			{"1-0102030000000000000000000000000000000000000000000000000000000000--", true, nil},   // within limit
 			{"2-0102030000000000000000000000000000000000000000000000000000000000-ff-", true, nil}, // within limit
 			{"1-0102030000000000000000000000000000000000000000000000000000000000--ff", true, nil}, // within limit
 		}
@@ -129,13 +129,9 @@ func TestTrackingIdFromString(t *testing.T) {
 	})
 }
 
-func hx(s string) string { return fmt.Sprintf("%x", []byte(s)) }
-
 func TestFromString_NilReceiver(t *testing.T) {
 	var tid *TrackingID = nil
-	// Minimal valid string: non-empty digest, valid protocol, empty parties/aux
-	s := "01-" + hx(ProtocolEmpty.ToString()) + "--"
-	err := tid.FromString(s)
+	err := tid.FromString("some-string")
 	if !errors.Is(err, errNilTrackID) {
 		t.Fatalf("FromString(nil receiver) err=%v, want errNilTrackID", err)
 	}
@@ -295,14 +291,14 @@ func TestTrackingID_FromString_RoundTripIfProtocolAllowed(t *testing.T) {
 	parties := []byte{0x10, 0x20, 0x30}
 	aux := []byte{0xAA, 0xBB}
 
-	s := fmt.Sprintf("0-%x-%x-%x", digest, parties, aux)
+	s := fmt.Sprintf("1-%x-%x-%x", digest, parties, aux)
 	err := tid.FromString(s)
 	if err != nil {
 		t.Fatalf("unexpected error parsing valid-looking string: %v", err)
 	}
 
-	if tid.Protocol != 0 {
-		t.Fatalf("Protocol got %d want 0", tid.Protocol)
+	if tid.Protocol != 1 {
+		t.Fatalf("Protocol got %d want 1", tid.Protocol)
 	}
 	if !bytes.Equal(tid.Digest, digest) {
 		t.Fatalf("Digest mismatch")
@@ -328,12 +324,12 @@ func TestTrackingID_FromString_ValidBoundaryLengths(t *testing.T) {
 	parties := bytes.Repeat([]byte{'b'}, 64)
 	aux := bytes.Repeat([]byte{'c'}, 64)
 
-	s := fmt.Sprintf("0-%s-%s-%s", digest, parties, aux)
+	s := fmt.Sprintf("1-%s-%s-%s", digest, parties, aux)
 	if err := tid.FromString(s); err != nil {
 		t.Fatalf("unexpected error for valid boundary lengths: %v", err)
 	}
 
-	if tid.Protocol != 0 {
+	if tid.Protocol != 1 {
 		t.Fatalf("Protocol: got %d want 0", tid.Protocol)
 	}
 	if !bytes.Equal(tid.Digest, bytes.Repeat([]byte{0xaa}, 32)) {
@@ -368,14 +364,14 @@ func TestTrackingID_FromString_OddLengthHexInDigest(t *testing.T) {
 
 	// 63 hex chars (odd / not 64) -> errTrackingIDigestLength
 	digest63 := bytes.Repeat([]byte{'a'}, 63)
-	s := fmt.Sprintf("0-%s--", digest63)
+	s := fmt.Sprintf("1-%s--", digest63)
 	if err := tid.FromString(s); err == nil || err != errTrackingIDigestLength {
 		t.Fatalf("expected errTrackingIDigestLength for 63-char digest, got %v", err)
 	}
 
 	// 65 hex chars (also not 64) -> errTrackingIDigestLength
 	digest65 := bytes.Repeat([]byte{'a'}, 65)
-	s = fmt.Sprintf("0-%s--", digest65)
+	s = fmt.Sprintf("1-%s--", digest65)
 	if err := tid.FromString(s); err == nil || err != errTrackingIDigestLength {
 		t.Fatalf("expected errTrackingIDigestLength for 65-char digest, got %v", err)
 	}
@@ -409,12 +405,12 @@ func TestTrackingID_FromString_NonHexInPartiesOrAux(t *testing.T) {
 	validDigest := bytes.Repeat([]byte{'a'}, 64)
 
 	// 'g' is not a hex digit
-	s := fmt.Sprintf("0-%s-%s-", validDigest, "gg")
+	s := fmt.Sprintf("1-%s-%s-", validDigest, "gg")
 	if err := tid.FromString(s); err == nil {
 		t.Fatalf("expected error for non-hex in parties, got nil")
 	}
 
-	s = fmt.Sprintf("0-%s--%s", validDigest, "zz")
+	s = fmt.Sprintf("1-%s--%s", validDigest, "zz")
 	if err := tid.FromString(s); err == nil {
 		t.Fatalf("expected error for non-hex in aux, got nil")
 	}
@@ -434,7 +430,7 @@ func TestTrackingID_FromString_HexCaseInsensitivity(t *testing.T) {
 	parties := "FfEeDdCcBbAa" // 12 (6 bytes)
 	aux := "abcdef"           // 6 (3 bytes)
 
-	s := fmt.Sprintf("0-%s-%s-%s", digest, parties, aux)
+	s := fmt.Sprintf("1-%s-%s-%s", digest, parties, aux)
 	if err := tid.FromString(s); err != nil {
 		t.Fatalf("unexpected error parsing mixed-case hex: %v", err)
 	}
