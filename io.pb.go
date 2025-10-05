@@ -180,14 +180,14 @@ func (x *MessageWrapper) GetProtocol() string {
 type TrackingID struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the digest of the message that is being signed.
-	Digest []byte `protobuf:"bytes,1,opt,name=digest,proto3" json:"digest,omitempty"`
+	Protocol uint32 `protobuf:"varint,1,opt,name=protocol,proto3" json:"protocol,omitempty"` // defines the protocol type (uses a single byte)
+	Digest   []byte `protobuf:"bytes,2,opt,name=digest,proto3" json:"digest,omitempty"`
 	// parties state indicate with true that a party is well,
 	// and with false that a party is not well for this specific digest.
 	// the size of parties_state should allow enough bits to count all participating parties in the protocol.
-	PartiesState []byte `protobuf:"bytes,2,opt,name=parties_state,json=partiesState,proto3" json:"parties_state,omitempty"`
+	PartiesState []byte `protobuf:"bytes,3,opt,name=parties_state,json=partiesState,proto3" json:"parties_state,omitempty"`
 	// any auxilary data provided to the protocol from outside, and needs to be on every message.
-	AuxilaryData  []byte `protobuf:"bytes,3,opt,name=auxilary_data,json=auxilaryData,proto3" json:"auxilary_data,omitempty"`
-	Protocol      []byte `protobuf:"bytes,4,opt,name=protocol,proto3" json:"protocol,omitempty"` // defines the protocol type.
+	AuxilaryData  []byte `protobuf:"bytes,4,opt,name=auxilary_data,json=auxilaryData,proto3" json:"auxilary_data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -222,6 +222,13 @@ func (*TrackingID) Descriptor() ([]byte, []int) {
 	return file_proto_io_proto_rawDescGZIP(), []int{2}
 }
 
+func (x *TrackingID) GetProtocol() uint32 {
+	if x != nil {
+		return x.Protocol
+	}
+	return 0
+}
+
 func (x *TrackingID) GetDigest() []byte {
 	if x != nil {
 		return x.Digest
@@ -239,13 +246,6 @@ func (x *TrackingID) GetPartiesState() []byte {
 func (x *TrackingID) GetAuxilaryData() []byte {
 	if x != nil {
 		return x.AuxilaryData
-	}
-	return nil
-}
-
-func (x *TrackingID) GetProtocol() []byte {
-	if x != nil {
-		return x.Protocol
 	}
 	return nil
 }
@@ -360,11 +360,11 @@ const file_proto_io_proto_rawDesc = "" +
 	"\bProtocol\x18\f \x01(\tR\bProtocolB\r\n" +
 	"\v_trackingID\"\x8a\x01\n" +
 	"\n" +
-	"TrackingID\x12\x16\n" +
-	"\x06digest\x18\x01 \x01(\fR\x06digest\x12#\n" +
-	"\rparties_state\x18\x02 \x01(\fR\fpartiesState\x12#\n" +
-	"\rauxilary_data\x18\x03 \x01(\fR\fauxilaryData\x12\x1a\n" +
-	"\bprotocol\x18\x04 \x01(\fR\bprotocol\"\xc4\x01\n" +
+	"TrackingID\x12\x1a\n" +
+	"\bprotocol\x18\x01 \x01(\rR\bprotocol\x12\x16\n" +
+	"\x06digest\x18\x02 \x01(\fR\x06digest\x12#\n" +
+	"\rparties_state\x18\x03 \x01(\fR\fpartiesState\x12#\n" +
+	"\rauxilary_data\x18\x04 \x01(\fR\fauxilaryData\"\xc4\x01\n" +
 	"\rSignatureData\x12\x1c\n" +
 	"\tsignature\x18\x01 \x01(\fR\tsignature\x12-\n" +
 	"\x12signature_recovery\x18\x02 \x01(\fR\x11signatureRecovery\x12\f\n" +

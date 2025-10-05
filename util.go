@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -48,15 +49,16 @@ func ConvertByteArrayToBoolArray(byteArray []byte, numBools int) []bool {
 const nilTrackID = "nilTrackID"
 
 // Creates a byte-string representation of the TrackingID.
-// output is in the format "Digest-ProtocolType-PartiesState-AuxilaryData".
-// Each part is a hexadecimal representation of the respective byte slice.
+// output is in the format "ProtocolType-Digest-PartiesState-AuxilaryData".
+// protocolType is an integer corresponding to the ProtocolType enum.
+// Each part of Digest-PartiesState-AuxilaryData is a hexadecimal representation of the respective byte slice.
 // If the TrackingID is nil, returns "nilTrackID".
 func (t *TrackingID) ToString() string {
 	if t == nil {
 		return nilTrackID
 	}
 
-	return fmt.Sprintf("%x-%x-%x-%x", t.Digest, t.Protocol, t.PartiesState, t.AuxilaryData)
+	return fmt.Sprintf("%d-%x-%x-%x", t.Protocol, pad32(t.Digest), t.PartiesState, t.AuxilaryData)
 }
 
 func (x *TrackingID) ToByteString() []byte {
@@ -67,6 +69,7 @@ var (
 	errNilTrackID                  = fmt.Errorf("nil TrackingID")
 	errTrackidPartTooLong          = fmt.Errorf("TrackingID part too long, must be at most 64 characters (32 bytes) each")
 	errTrackidMustHaveDigest       = fmt.Errorf("TrackingID must have a non-empty Digest part")
+	errTrackingIDigestLength       = fmt.Errorf("TrackingID Digest must be exactly 64 hex characters (32 bytes)")
 	errTrackidMustHaveProtocolType = fmt.Errorf("TrackingID must have a non-empty ProtocolType part")
 	errTrackidStringEmpty          = fmt.Errorf("TrackingID string cannot be empty")
 	errTrackidInvalidFormat        = fmt.Errorf("invalid TrackingID format, expected 'Digest-ProtocolType-PartiesState-AuxilaryData'")
@@ -75,8 +78,8 @@ var (
 
 // FromString parses a string representation of a TrackingID into the
 // TrackingID struct. The string should be in the format
-// "Digest-ProtocolType-PartiesState-AuxilaryData", where each part is a hexadecimal
-// representation of the respective byte slice.
+// "ProtocolType-Digest-PartiesState-AuxilaryData", where protocolType is an integer, and the rest are
+// hexadecimal representation of the respective byte slice.
 //
 // The tracking ID should always have at least four 'dashes' in the string,
 // even if the PartiesState or AuxilaryData are nil.
@@ -105,20 +108,38 @@ func (t *TrackingID) FromString(s string) error {
 	}
 
 	if len(parts[0]) == 0 {
+		return errTrackidMustHaveProtocolType
+	}
+
+	if len(parts[0]) > 2 {
+		return errTrackidPartTooLong
+	}
+
+	protocolInt, err := strconv.Atoi(parts[0]) // just to check if it's a valid integer string
+	if err != nil {
+		return fmt.Errorf("failed to parse TrackingID from string: %w", err)
+	}
+
+	if !isValidProtocolType(protocolInt) {
+		return errUnknownProtocolType
+	}
+
+	t.Protocol = uint32(protocolInt)
+
+	if len(parts[1]) == 0 { // must be exactly 32 bytes in hex
 		return errTrackidMustHaveDigest
 	}
 
-	if len(parts[1]) == 0 {
-		return errTrackidMustHaveProtocolType
+	if len(parts[1]) != 64 {
+		return errTrackingIDigestLength
 	}
 
 	t.Digest = nil
 	t.PartiesState = nil
 	t.AuxilaryData = nil
-	t.Protocol = []byte(ProtocolEmpty.ToString())
 
-	byteParts := make([][]byte, 4)
-	for i, hexstring := range parts {
+	byteParts := make([][]byte, 3)
+	for i, hexstring := range parts[1:] {
 		if len(hexstring) > 64 {
 			return errTrackidPartTooLong
 		}
@@ -137,15 +158,9 @@ func (t *TrackingID) FromString(s string) error {
 		byteParts[i] = tmp
 	}
 
-	// check protocol correctness
-	if !isValidProtocolType(string(byteParts[1])) {
-		return errUnknownProtocolType
-	}
-
 	t.Digest = byteParts[0]
-	t.Protocol = byteParts[1]
-	t.PartiesState = byteParts[2]
-	t.AuxilaryData = byteParts[3]
+	t.PartiesState = byteParts[1]
+	t.AuxilaryData = byteParts[2]
 
 	return nil
 }
@@ -165,8 +180,8 @@ func (t *TrackingID) Equals(other *TrackingID) bool {
 		return false
 	}
 
-	return pad32(t.Digest) == pad32(other.Digest) &&
-		pad32(t.Protocol) == pad32(other.Protocol) &&
+	return t.Protocol == other.Protocol &&
+		pad32(t.Digest) == pad32(other.Digest) &&
 		pad32(t.PartiesState) == pad32(other.PartiesState) &&
 		pad32(t.AuxilaryData) == pad32(other.AuxilaryData)
 }

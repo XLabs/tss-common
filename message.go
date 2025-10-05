@@ -1,5 +1,3 @@
-// TODO: use To as a single PartyID instead of a slice, and remove the variable of isBroadcast.
-// if To is nil -> it's a broadcast. Fix everything accordingly.
 package common
 
 import (
@@ -10,28 +8,40 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
+type ProtocolType string
+
 const (
 	ProtocolEmpty ProtocolType = "Empty"
 	ProtocolECDSA ProtocolType = "ECDSA"
 	ProtocolFROST ProtocolType = "FROST"
+
+	emptyInt = 0
+	frostInt = 1
+	ecdsaInt = 2
 )
 
 func (p ProtocolType) ToString() string {
 	return string(p)
 }
 
-func isValidProtocolType(s string) bool {
-	switch ProtocolType(s) {
-	case ProtocolEmpty, ProtocolFROST, ProtocolECDSA:
-		return true
+func (p ProtocolType) ToInt() int {
+	switch p {
+	case ProtocolEmpty:
+		return emptyInt
+	case ProtocolFROST:
+		return frostInt
+	case ProtocolECDSA:
+		return ecdsaInt
 	default:
-		return false
+		return -1
 	}
 }
 
-type (
-	ProtocolType string
+func isValidProtocolType(n int) bool {
+	return n == emptyInt || n == frostInt || n == ecdsaInt
+}
 
+type (
 	// Message describes the interface of the TSS Message for all protocols
 	Message interface {
 		// Type is encoded in the protobuf Any structure
