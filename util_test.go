@@ -445,3 +445,71 @@ func TestTrackingID_FromString_HexCaseInsensitivity(t *testing.T) {
 		t.Fatalf("round-trip equals mismatch")
 	}
 }
+
+func TestGetProtocolType(t *testing.T) {
+	tests := []struct {
+		name    string
+		target  *TrackingID
+		want    ProtocolType
+		wantErr error
+	}{
+		{
+			name:    "nil receiver",
+			target:  nil,
+			want:    "",
+			wantErr: errNilTrackID,
+		},
+		{
+			name:    "FROST Sign",
+			target:  &TrackingID{Protocol: protocolTypeFROSTSign},
+			want:    ProtocolFROSTSign,
+			wantErr: nil,
+		},
+		{
+			name:    "FROST DKG",
+			target:  &TrackingID{Protocol: protocolTypeFROSTDKG},
+			want:    ProtocolFROSTDKG,
+			wantErr: nil,
+		},
+		{
+			name:    "ECDSA Sign",
+			target:  &TrackingID{Protocol: protocolTypeECDSASign},
+			want:    ProtocolECDSASign,
+			wantErr: nil,
+		},
+		{
+			name:    "ECDSA DKG",
+			target:  &TrackingID{Protocol: protocolTypeECDSADKG},
+			want:    ProtocolECDSADKG,
+			wantErr: nil,
+		},
+		{
+			name:    "invalid protocol max (too high)",
+			target:  &TrackingID{Protocol: protocolTypeMax}, // not a valid protocolType
+			want:    "",
+			wantErr: errUnknownProtocolType,
+		},
+		{
+			name:    "invalid protocol min (too low)",
+			target:  &TrackingID{Protocol: protocolTypeMin}, // not a valid protocolType
+			want:    "",
+			wantErr: errUnknownProtocolType,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := tt.target.GetProtocolType()
+
+			if err != tt.wantErr {
+				t.Fatalf("GetProtocolType() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if got != tt.want {
+				t.Fatalf("GetProtocolType() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

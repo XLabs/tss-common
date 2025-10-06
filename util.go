@@ -185,3 +185,31 @@ func (t *TrackingID) Equals(other *TrackingID) bool {
 		pad32(t.PartiesState) == pad32(other.PartiesState) &&
 		pad32(t.AuxiliaryData) == pad32(other.AuxiliaryData)
 }
+
+/*
+Returns the ProtocolType enum corresponding to the Protocol field in the TrackingID.
+If the TrackingID is nil, returns an error.
+If the Protocol field does not correspond to a valid ProtocolType, returns an error.
+*/
+func (t *TrackingID) GetProtocolType() (ProtocolType, error) {
+	if t == nil {
+		return "", errNilTrackID
+	}
+
+	if !isValidProtocolType(int(t.Protocol)) {
+		return "", errUnknownProtocolType
+	}
+
+	switch int(t.Protocol) {
+	case protocolTypeFROSTSign:
+		return ProtocolFROSTSign, nil
+	case protocolTypeFROSTDKG:
+		return ProtocolFROSTDKG, nil
+	case protocolTypeECDSASign:
+		return ProtocolECDSASign, nil
+	case protocolTypeECDSADKG:
+		return ProtocolECDSADKG, nil
+	default:
+		return "", errUnknownProtocolType
+	}
+}
