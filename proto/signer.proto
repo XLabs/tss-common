@@ -7,7 +7,7 @@ import "proto/io.proto";
 
 
 service Signer {
-  rpc SignMessage (stream SignRequest) returns (stream SignatureData);
+  rpc SignMessage (stream SignRequest) returns (stream SignResponse);
 }
 
 

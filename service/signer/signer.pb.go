@@ -255,9 +255,9 @@ const file_proto_signer_proto_rawDesc = "" +
 	"SignStatus\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12.\n" +
-	"\adetails\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\adetails2h\n" +
-	"\x06Signer\x12^\n" +
-	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a\x1e.xlabs.tsscommon.SignatureData(\x010\x01B\x19Z\x17./service/signer;signerb\x06proto3"
+	"\adetails\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\adetails2v\n" +
+	"\x06Signer\x12l\n" +
+	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01B\x19Z\x17./service/signer;signerb\x06proto3"
 
 var (
 	file_proto_signer_proto_rawDescOnce sync.Once
@@ -284,7 +284,7 @@ var file_proto_signer_proto_depIdxs = []int32{
 	2, // 1: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
 	4, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
 	0, // 3: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
-	3, // 4: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.SignatureData
+	1, // 4: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

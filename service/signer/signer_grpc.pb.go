@@ -8,7 +8,6 @@ package signer
 
 import (
 	context "context"
-	tss_common "github.com/xlabs/tss-common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SignerClient interface {
-	SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, tss_common.SignatureData], error)
+	SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, SignResponse], error)
 }
 
 type signerClient struct {
@@ -38,24 +37,24 @@ func NewSignerClient(cc grpc.ClientConnInterface) SignerClient {
 	return &signerClient{cc}
 }
 
-func (c *signerClient) SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, tss_common.SignatureData], error) {
+func (c *signerClient) SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, SignResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Signer_ServiceDesc.Streams[0], Signer_SignMessage_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[SignRequest, tss_common.SignatureData]{ClientStream: stream}
+	x := &grpc.GenericClientStream[SignRequest, SignResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Signer_SignMessageClient = grpc.BidiStreamingClient[SignRequest, tss_common.SignatureData]
+type Signer_SignMessageClient = grpc.BidiStreamingClient[SignRequest, SignResponse]
 
 // SignerServer is the server API for Signer service.
 // All implementations must embed UnimplementedSignerServer
 // for forward compatibility.
 type SignerServer interface {
-	SignMessage(grpc.BidiStreamingServer[SignRequest, tss_common.SignatureData]) error
+	SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error
 	mustEmbedUnimplementedSignerServer()
 }
 
@@ -66,7 +65,7 @@ type SignerServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSignerServer struct{}
 
-func (UnimplementedSignerServer) SignMessage(grpc.BidiStreamingServer[SignRequest, tss_common.SignatureData]) error {
+func (UnimplementedSignerServer) SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method SignMessage not implemented")
 }
 func (UnimplementedSignerServer) mustEmbedUnimplementedSignerServer() {}
@@ -91,11 +90,11 @@ func RegisterSignerServer(s grpc.ServiceRegistrar, srv SignerServer) {
 }
 
 func _Signer_SignMessage_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(SignerServer).SignMessage(&grpc.GenericServerStream[SignRequest, tss_common.SignatureData]{ServerStream: stream})
+	return srv.(SignerServer).SignMessage(&grpc.GenericServerStream[SignRequest, SignResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Signer_SignMessageServer = grpc.BidiStreamingServer[SignRequest, tss_common.SignatureData]
+type Signer_SignMessageServer = grpc.BidiStreamingServer[SignRequest, SignResponse]
 
 // Signer_ServiceDesc is the grpc.ServiceDesc for Signer service.
 // It's only intended for direct use with grpc.RegisterService,
