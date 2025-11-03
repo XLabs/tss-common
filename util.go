@@ -196,20 +196,5 @@ func (t *TrackingID) GetProtocolType() (ProtocolType, error) {
 		return "", errNilTrackID
 	}
 
-	if !isValidProtocolType(int(t.Protocol)) {
-		return "", errUnknownProtocolType
-	}
-
-	switch int(t.Protocol) {
-	case protocolTypeFROSTSign:
-		return ProtocolFROSTSign, nil
-	case protocolTypeFROSTDKG:
-		return ProtocolFROSTDKG, nil
-	case protocolTypeECDSASign:
-		return ProtocolECDSASign, nil
-	case protocolTypeECDSADKG:
-		return ProtocolECDSADKG, nil
-	default:
-		return "", errUnknownProtocolType
-	}
+	return ProtocolTypeFromInt(int(t.Protocol))
 }
