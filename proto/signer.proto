@@ -1,0 +1,44 @@
+
+syntax = "proto3";
+package xlabs.tsscommon.service.signer;
+option go_package = "./service/signer;signer";
+import "google/protobuf/any.proto";
+import "proto/io.proto";
+
+
+service Signer {
+  rpc SignMessage (stream SignRequest) returns (stream SignatureData);
+}
+
+
+message SignRequest {
+  // The message to be signed
+  bytes digest = 1;
+  string protocol = 2; // defines the protocol type.
+  // The committee members involved in the signing process
+  repeated bytes committee = 3; 
+}
+
+message SignResponse {
+  // The resulting signature
+  oneof response {
+    SignatureData signature = 1;
+    SignStatus status = 2;
+  }
+}
+
+message SignStatus {
+  // The status code, which should be an enum value of
+  // [google.rpc.Code][google.rpc.Code].
+  int32 code = 1;
+
+  // A developer-facing error message, which should be in English. Any
+  // user-facing error message should be localized and sent in the
+  // [google.rpc.Status.details][google.rpc.Status.details] field, or localized
+  // by the client.
+  string message = 2;
+
+  // optional additional details message.
+  // A list of messages that carry the error details.
+  google.protobuf.Any details = 3;
+}

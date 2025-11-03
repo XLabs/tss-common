@@ -6,9 +6,10 @@
 
 syntax = "proto3";
 package xlabs.tsscommon;
-option go_package = "./common";
+option go_package = "github.com/xlabs/tss-common;common";
 
 import "google/protobuf/any.proto";
+
 
 
 // Using a struct in case we want to add more fields in the future

@@ -372,8 +372,7 @@ const file_proto_io_proto_rawDesc = "" +
 	"\x01s\x18\x04 \x01(\fR\x01s\x12\f\n" +
 	"\x01m\x18\x05 \x01(\fR\x01m\x12<\n" +
 	"\vtracking_id\x18\x06 \x01(\v2\x1b.xlabs.tsscommon.TrackingIDR\n" +
-	"trackingIdB\n" +
-	"Z\b./commonb\x06proto3"
+	"trackingIdB$Z\"github.com/xlabs/tss-common;commonb\x06proto3"
 
 var (
 	file_proto_io_proto_rawDescOnce sync.Once
