@@ -7,22 +7,29 @@ import "proto/io.proto";
 
 
 service Signer {
+  // SignMessage is a bidirectional streaming RPC to sign a message digest using TSS.
+  // The client sends a stream of SignRequest messages containing the digest to be signed,
+  // the protocol type, and the committee members involved in the signing process.
+  // The server responds with a stream of SignResponse messages containing either
+  // the signature data or the status (on failure).
   rpc SignMessage (stream SignRequest) returns (stream SignResponse);
 }
 
 
 message SignRequest {
-  // The message to be signed
+  // A 32-byte digest to be signed.
   bytes digest = 1;
-  string protocol = 2; // defines the protocol type.
-  // The committee members involved in the signing process
+  // Defines the protocol type. E.g., ProtocolFROSTSign.ToString() (see protocol.go)
+  string protocol = 2;
+  // The committee members involved in the signing process. 
+  // Each member should be an Ethereum address.
   repeated bytes committee = 3; 
 }
 
 message SignResponse {
-  // The resulting signature
   oneof response {
-    SignatureData signature = 1;
+    // can be translated to either frost or ecdsa signature. depends on the protocol used.
+    SignatureData signature = 1; // M represents the SignRequest.digest.
     SignStatus status = 2;
   }
 }
@@ -39,6 +46,5 @@ message SignStatus {
   string message = 2;
 
   // optional additional details message.
-  // A list of messages that carry the error details.
   google.protobuf.Any details = 3;
 }

@@ -25,10 +25,12 @@ const (
 
 type SignRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The message to be signed
-	Digest   []byte `protobuf:"bytes,1,opt,name=digest,proto3" json:"digest,omitempty"`
-	Protocol string `protobuf:"bytes,2,opt,name=protocol,proto3" json:"protocol,omitempty"` // defines the protocol type.
-	// The committee members involved in the signing process
+	// A 32-byte digest to be signed.
+	Digest []byte `protobuf:"bytes,1,opt,name=digest,proto3" json:"digest,omitempty"`
+	// Defines the protocol type. E.g., ProtocolFROSTSign.ToString() (see protocol.go)
+	Protocol string `protobuf:"bytes,2,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	// The committee members involved in the signing process.
+	// Each member should be an Ethereum address.
 	Committee     [][]byte `protobuf:"bytes,3,rep,name=committee,proto3" json:"committee,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -87,8 +89,6 @@ func (x *SignRequest) GetCommittee() [][]byte {
 
 type SignResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The resulting signature
-	//
 	// Types that are valid to be assigned to Response:
 	//
 	//	*SignResponse_Signature
@@ -158,7 +158,8 @@ type isSignResponse_Response interface {
 }
 
 type SignResponse_Signature struct {
-	Signature *tss_common.SignatureData `protobuf:"bytes,1,opt,name=signature,proto3,oneof"`
+	// can be translated to either frost or ecdsa signature. depends on the protocol used.
+	Signature *tss_common.SignatureData `protobuf:"bytes,1,opt,name=signature,proto3,oneof"` // M represents the SignRequest.digest.
 }
 
 type SignResponse_Status struct {
@@ -180,7 +181,6 @@ type SignStatus struct {
 	// by the client.
 	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	// optional additional details message.
-	// A list of messages that carry the error details.
 	Details       *anypb.Any `protobuf:"bytes,3,opt,name=details,proto3" json:"details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

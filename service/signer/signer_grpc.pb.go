@@ -26,6 +26,11 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SignerClient interface {
+	// SignMessage is a bidirectional streaming RPC to sign a message digest using TSS.
+	// The client sends a stream of SignRequest messages containing the digest to be signed,
+	// the protocol type, and the committee members involved in the signing process.
+	// The server responds with a stream of SignResponse messages containing either
+	// the signature data or the status (on failure).
 	SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, SignResponse], error)
 }
 
@@ -54,6 +59,11 @@ type Signer_SignMessageClient = grpc.BidiStreamingClient[SignRequest, SignRespon
 // All implementations must embed UnimplementedSignerServer
 // for forward compatibility.
 type SignerServer interface {
+	// SignMessage is a bidirectional streaming RPC to sign a message digest using TSS.
+	// The client sends a stream of SignRequest messages containing the digest to be signed,
+	// the protocol type, and the committee members involved in the signing process.
+	// The server responds with a stream of SignResponse messages containing either
+	// the signature data or the status (on failure).
 	SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error
 	mustEmbedUnimplementedSignerServer()
 }
