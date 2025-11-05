@@ -180,8 +180,10 @@ type SignStatus struct {
 	// [google.rpc.Status.details][google.rpc.Status.details] field, or localized
 	// by the client.
 	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	// The original digest that failed to sign.
+	Digest []byte `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
 	// optional additional details message.
-	Details       *anypb.Any `protobuf:"bytes,3,opt,name=details,proto3" json:"details,omitempty"`
+	Details       *anypb.Any `protobuf:"bytes,4,opt,name=details,proto3" json:"details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +232,13 @@ func (x *SignStatus) GetMessage() string {
 	return ""
 }
 
+func (x *SignStatus) GetDigest() []byte {
+	if x != nil {
+		return x.Digest
+	}
+	return nil
+}
+
 func (x *SignStatus) GetDetails() *anypb.Any {
 	if x != nil {
 		return x.Details
@@ -250,12 +259,13 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\tsignature\x18\x01 \x01(\v2\x1e.xlabs.tsscommon.SignatureDataH\x00R\tsignature\x12D\n" +
 	"\x06status\x18\x02 \x01(\v2*.xlabs.tsscommon.service.signer.SignStatusH\x00R\x06statusB\n" +
 	"\n" +
-	"\bresponse\"j\n" +
+	"\bresponse\"\x82\x01\n" +
 	"\n" +
 	"SignStatus\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\x12.\n" +
-	"\adetails\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\adetails2v\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x16\n" +
+	"\x06digest\x18\x03 \x01(\fR\x06digest\x12.\n" +
+	"\adetails\x18\x04 \x01(\v2\x14.google.protobuf.AnyR\adetails2v\n" +
 	"\x06Signer\x12l\n" +
 	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01B\x19Z\x17./service/signer;signerb\x06proto3"
 
