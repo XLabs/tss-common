@@ -70,7 +70,7 @@ func ProtocolTypeFromInt(pInt int) (ProtocolType, error) {
 	case protocolTypeECDSADKG:
 		return ProtocolECDSADKG, nil
 	default:
-		return "", errUnknownProtocolType
+		return "", ErrUnknownProtocolType
 	}
 }
 

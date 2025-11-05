@@ -96,8 +96,8 @@ func TestTrackingIdFromString(t *testing.T) {
 			{"-abcd--", false, errTrackidMustHaveProtocolType},                   // empty protocol
 			{fmt.Sprintf("-%s-ff-", b64), false, errTrackidMustHaveProtocolType}, // empty protocol with valid 64-hex digest
 			{fmt.Sprintf("123-%s-ff-", b64), false, errTrackidPartTooLong},       // protocol too long (>2 chars)
-			{"0-efff--", false, errUnknownProtocolType},                          // unknown protocol
-			{"9-efff--", false, errUnknownProtocolType},                          // unknown protocol
+			{"0-efff--", false, ErrUnknownProtocolType},                          // unknown protocol
+			{"9-efff--", false, ErrUnknownProtocolType},                          // unknown protocol
 			{"12140-efff--", false, errTrackidPartTooLong},
 			{"ab-efff--", false, nil}, // non-integer protocol (no sentinel; just expect non-nil error)
 
@@ -487,13 +487,13 @@ func TestGetProtocolType(t *testing.T) {
 			name:    "invalid protocol max (too high)",
 			target:  &TrackingID{Protocol: protocolTypeMax}, // not a valid protocolType
 			want:    "",
-			wantErr: errUnknownProtocolType,
+			wantErr: ErrUnknownProtocolType,
 		},
 		{
 			name:    "invalid protocol min (too low)",
 			target:  &TrackingID{Protocol: protocolTypeMin}, // not a valid protocolType
 			want:    "",
-			wantErr: errUnknownProtocolType,
+			wantErr: ErrUnknownProtocolType,
 		},
 	}
 
@@ -505,6 +505,7 @@ func TestGetProtocolType(t *testing.T) {
 			got, err := tt.target.GetProtocolType()
 
 			if err != tt.wantErr {
+				tt.target.GetProtocolType()
 				t.Fatalf("GetProtocolType() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if got != tt.want {
