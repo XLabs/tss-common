@@ -45,9 +45,24 @@ message SignStatus {
   // by the client.
   string message = 2;
 
-  // The original digest that failed to sign.
-  bytes digest = 3; 
+  // The digest from the SignRequest.
+  bytes digest = 3;
+  // The protocol from the SignRequest.
+  string protocol = 4;
 
   // optional additional details message.
-  google.protobuf.Any details = 4;
+  google.protobuf.Any details = 5;
+}
+
+// ErrorDetails contains additional information about an error that occurred during the signing process.
+message ErrorDetails {
+	string task=1; // e.g., function name where the error occurred
+	int32 round=2; // -1 if not applicable
+  repeated PartyID culprits=3; // parties responsible for the error. Optional.
+}
+
+// WarningDetails contains information about a warning that occurred during the signing process.
+message WarningDetails {
+	repeated PartyID culprits = 1;
+	int32    round = 2;
 }

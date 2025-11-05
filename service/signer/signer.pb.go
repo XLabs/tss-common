@@ -180,10 +180,12 @@ type SignStatus struct {
 	// [google.rpc.Status.details][google.rpc.Status.details] field, or localized
 	// by the client.
 	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	// The original digest that failed to sign.
+	// The digest from the SignRequest.
 	Digest []byte `protobuf:"bytes,3,opt,name=digest,proto3" json:"digest,omitempty"`
+	// The protocol from the SignRequest.
+	Protocol string `protobuf:"bytes,4,opt,name=protocol,proto3" json:"protocol,omitempty"`
 	// optional additional details message.
-	Details       *anypb.Any `protobuf:"bytes,4,opt,name=details,proto3" json:"details,omitempty"`
+	Details       *anypb.Any `protobuf:"bytes,5,opt,name=details,proto3" json:"details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,11 +241,132 @@ func (x *SignStatus) GetDigest() []byte {
 	return nil
 }
 
+func (x *SignStatus) GetProtocol() string {
+	if x != nil {
+		return x.Protocol
+	}
+	return ""
+}
+
 func (x *SignStatus) GetDetails() *anypb.Any {
 	if x != nil {
 		return x.Details
 	}
 	return nil
+}
+
+// ErrorDetails contains additional information about an error that occurred during the signing process.
+type ErrorDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Task          string                 `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`         // e.g., function name where the error occurred
+	Round         int32                  `protobuf:"varint,2,opt,name=round,proto3" json:"round,omitempty"`      // -1 if not applicable
+	Culprits      []*tss_common.PartyID  `protobuf:"bytes,3,rep,name=culprits,proto3" json:"culprits,omitempty"` // parties responsible for the error. Optional.
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ErrorDetails) Reset() {
+	*x = ErrorDetails{}
+	mi := &file_proto_signer_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ErrorDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ErrorDetails) ProtoMessage() {}
+
+func (x *ErrorDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ErrorDetails.ProtoReflect.Descriptor instead.
+func (*ErrorDetails) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ErrorDetails) GetTask() string {
+	if x != nil {
+		return x.Task
+	}
+	return ""
+}
+
+func (x *ErrorDetails) GetRound() int32 {
+	if x != nil {
+		return x.Round
+	}
+	return 0
+}
+
+func (x *ErrorDetails) GetCulprits() []*tss_common.PartyID {
+	if x != nil {
+		return x.Culprits
+	}
+	return nil
+}
+
+// WarningDetails contains information about a warning that occurred during the signing process.
+type WarningDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Culprits      []*tss_common.PartyID  `protobuf:"bytes,1,rep,name=culprits,proto3" json:"culprits,omitempty"`
+	Round         int32                  `protobuf:"varint,2,opt,name=round,proto3" json:"round,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WarningDetails) Reset() {
+	*x = WarningDetails{}
+	mi := &file_proto_signer_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WarningDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WarningDetails) ProtoMessage() {}
+
+func (x *WarningDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WarningDetails.ProtoReflect.Descriptor instead.
+func (*WarningDetails) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *WarningDetails) GetCulprits() []*tss_common.PartyID {
+	if x != nil {
+		return x.Culprits
+	}
+	return nil
+}
+
+func (x *WarningDetails) GetRound() int32 {
+	if x != nil {
+		return x.Round
+	}
+	return 0
 }
 
 var File_proto_signer_proto protoreflect.FileDescriptor
@@ -259,13 +382,21 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\tsignature\x18\x01 \x01(\v2\x1e.xlabs.tsscommon.SignatureDataH\x00R\tsignature\x12D\n" +
 	"\x06status\x18\x02 \x01(\v2*.xlabs.tsscommon.service.signer.SignStatusH\x00R\x06statusB\n" +
 	"\n" +
-	"\bresponse\"\x82\x01\n" +
+	"\bresponse\"\x9e\x01\n" +
 	"\n" +
 	"SignStatus\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x16\n" +
-	"\x06digest\x18\x03 \x01(\fR\x06digest\x12.\n" +
-	"\adetails\x18\x04 \x01(\v2\x14.google.protobuf.AnyR\adetails2v\n" +
+	"\x06digest\x18\x03 \x01(\fR\x06digest\x12\x1a\n" +
+	"\bprotocol\x18\x04 \x01(\tR\bprotocol\x12.\n" +
+	"\adetails\x18\x05 \x01(\v2\x14.google.protobuf.AnyR\adetails\"n\n" +
+	"\fErrorDetails\x12\x12\n" +
+	"\x04task\x18\x01 \x01(\tR\x04task\x12\x14\n" +
+	"\x05round\x18\x02 \x01(\x05R\x05round\x124\n" +
+	"\bculprits\x18\x03 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\bculprits\"\\\n" +
+	"\x0eWarningDetails\x124\n" +
+	"\bculprits\x18\x01 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\bculprits\x12\x14\n" +
+	"\x05round\x18\x02 \x01(\x05R\x05round2v\n" +
 	"\x06Signer\x12l\n" +
 	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01B\x19Z\x17./service/signer;signerb\x06proto3"
 
@@ -281,25 +412,30 @@ func file_proto_signer_proto_rawDescGZIP() []byte {
 	return file_proto_signer_proto_rawDescData
 }
 
-var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_signer_proto_goTypes = []any{
 	(*SignRequest)(nil),              // 0: xlabs.tsscommon.service.signer.SignRequest
 	(*SignResponse)(nil),             // 1: xlabs.tsscommon.service.signer.SignResponse
 	(*SignStatus)(nil),               // 2: xlabs.tsscommon.service.signer.SignStatus
-	(*tss_common.SignatureData)(nil), // 3: xlabs.tsscommon.SignatureData
-	(*anypb.Any)(nil),                // 4: google.protobuf.Any
+	(*ErrorDetails)(nil),             // 3: xlabs.tsscommon.service.signer.ErrorDetails
+	(*WarningDetails)(nil),           // 4: xlabs.tsscommon.service.signer.WarningDetails
+	(*tss_common.SignatureData)(nil), // 5: xlabs.tsscommon.SignatureData
+	(*anypb.Any)(nil),                // 6: google.protobuf.Any
+	(*tss_common.PartyID)(nil),       // 7: xlabs.tsscommon.PartyID
 }
 var file_proto_signer_proto_depIdxs = []int32{
-	3, // 0: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
+	5, // 0: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
 	2, // 1: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
-	4, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
-	0, // 3: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
-	1, // 4: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	6, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
+	7, // 3: xlabs.tsscommon.service.signer.ErrorDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	7, // 4: xlabs.tsscommon.service.signer.WarningDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	0, // 5: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
+	1, // 6: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
+	6, // [6:7] is the sub-list for method output_type
+	5, // [5:6] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_proto_signer_proto_init() }
@@ -317,7 +453,7 @@ func file_proto_signer_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_signer_proto_rawDesc), len(file_proto_signer_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
