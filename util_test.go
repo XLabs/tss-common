@@ -505,7 +505,6 @@ func TestGetProtocolType(t *testing.T) {
 			got, err := tt.target.GetProtocolType()
 
 			if err != tt.wantErr {
-				tt.target.GetProtocolType()
 				t.Fatalf("GetProtocolType() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if got != tt.want {
