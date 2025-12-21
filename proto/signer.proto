@@ -13,6 +13,13 @@ service Signer {
   // The server responds with a stream of SignResponse messages containing either
   // the signature data or the status (on failure).
   rpc SignMessage (stream SignRequest) returns (stream SignResponse);
+
+  // GetPublicData is a unary RPC, providing the requester with the signer's public data. 
+  // For instance, its public keys.
+  rpc GetPublicData(PublicDataRequest) returns (PublicData);
+
+  // VerifySignature is a unary RPC used to check the validity of a signature.
+  rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse);
 }
 
 
@@ -65,4 +72,22 @@ message ErrorDetails {
 message WarningDetails {
 	repeated PartyID culprits = 1;
 	int32    round = 2;
+}
+
+message PublicDataRequest {}
+
+message PublicData {
+  // according to the signer's marshal implementation.
+  bytes frost_public_data = 1;
+  // according to the signer's marshal implementation.
+  bytes ecdsa_public_data = 2;
+}
+
+message VerifySignatureRequest {
+  SignatureData signature = 1;
+  PublicData public_data = 2;
+}
+
+message VerifySignatureResponse {
+  bool is_valid = 1;
 }
