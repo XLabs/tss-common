@@ -19,7 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Signer_SignMessage_FullMethodName = "/xlabs.tsscommon.service.signer.Signer/SignMessage"
+	Signer_SignMessage_FullMethodName     = "/xlabs.tsscommon.service.signer.Signer/SignMessage"
+	Signer_GetPublicData_FullMethodName   = "/xlabs.tsscommon.service.signer.Signer/GetPublicData"
+	Signer_VerifySignature_FullMethodName = "/xlabs.tsscommon.service.signer.Signer/VerifySignature"
 )
 
 // SignerClient is the client API for Signer service.
@@ -32,6 +34,11 @@ type SignerClient interface {
 	// The server responds with a stream of SignResponse messages containing either
 	// the signature data or the status (on failure).
 	SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, SignResponse], error)
+	// GetPublicData is a unary RPC, providing the requester with the signer's public data.
+	// For instance, its public keys.
+	GetPublicData(ctx context.Context, in *PublicDataRequest, opts ...grpc.CallOption) (*PublicData, error)
+	// VerifySignature is a unary RPC used to check the validity of a signature.
+	VerifySignature(ctx context.Context, in *VerifySignatureRequest, opts ...grpc.CallOption) (*VerifySignatureResponse, error)
 }
 
 type signerClient struct {
@@ -55,6 +62,26 @@ func (c *signerClient) SignMessage(ctx context.Context, opts ...grpc.CallOption)
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Signer_SignMessageClient = grpc.BidiStreamingClient[SignRequest, SignResponse]
 
+func (c *signerClient) GetPublicData(ctx context.Context, in *PublicDataRequest, opts ...grpc.CallOption) (*PublicData, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublicData)
+	err := c.cc.Invoke(ctx, Signer_GetPublicData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signerClient) VerifySignature(ctx context.Context, in *VerifySignatureRequest, opts ...grpc.CallOption) (*VerifySignatureResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifySignatureResponse)
+	err := c.cc.Invoke(ctx, Signer_VerifySignature_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SignerServer is the server API for Signer service.
 // All implementations must embed UnimplementedSignerServer
 // for forward compatibility.
@@ -65,6 +92,11 @@ type SignerServer interface {
 	// The server responds with a stream of SignResponse messages containing either
 	// the signature data or the status (on failure).
 	SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error
+	// GetPublicData is a unary RPC, providing the requester with the signer's public data.
+	// For instance, its public keys.
+	GetPublicData(context.Context, *PublicDataRequest) (*PublicData, error)
+	// VerifySignature is a unary RPC used to check the validity of a signature.
+	VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error)
 	mustEmbedUnimplementedSignerServer()
 }
 
@@ -77,6 +109,12 @@ type UnimplementedSignerServer struct{}
 
 func (UnimplementedSignerServer) SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method SignMessage not implemented")
+}
+func (UnimplementedSignerServer) GetPublicData(context.Context, *PublicDataRequest) (*PublicData, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPublicData not implemented")
+}
+func (UnimplementedSignerServer) VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifySignature not implemented")
 }
 func (UnimplementedSignerServer) mustEmbedUnimplementedSignerServer() {}
 func (UnimplementedSignerServer) testEmbeddedByValue()                {}
@@ -106,13 +144,58 @@ func _Signer_SignMessage_Handler(srv interface{}, stream grpc.ServerStream) erro
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Signer_SignMessageServer = grpc.BidiStreamingServer[SignRequest, SignResponse]
 
+func _Signer_GetPublicData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublicDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignerServer).GetPublicData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Signer_GetPublicData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignerServer).GetPublicData(ctx, req.(*PublicDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Signer_VerifySignature_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifySignatureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignerServer).VerifySignature(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Signer_VerifySignature_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignerServer).VerifySignature(ctx, req.(*VerifySignatureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Signer_ServiceDesc is the grpc.ServiceDesc for Signer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Signer_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "xlabs.tsscommon.service.signer.Signer",
 	HandlerType: (*SignerServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetPublicData",
+			Handler:    _Signer_GetPublicData_Handler,
+		},
+		{
+			MethodName: "VerifySignature",
+			Handler:    _Signer_VerifySignature_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "SignMessage",

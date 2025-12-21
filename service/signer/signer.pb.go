@@ -369,6 +369,192 @@ func (x *WarningDetails) GetRound() int32 {
 	return 0
 }
 
+type PublicDataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublicDataRequest) Reset() {
+	*x = PublicDataRequest{}
+	mi := &file_proto_signer_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublicDataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublicDataRequest) ProtoMessage() {}
+
+func (x *PublicDataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublicDataRequest.ProtoReflect.Descriptor instead.
+func (*PublicDataRequest) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{5}
+}
+
+type PublicData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// according to the signer's marshal implementation.
+	FrostPublicData []byte `protobuf:"bytes,1,opt,name=frost_public_data,json=frostPublicData,proto3" json:"frost_public_data,omitempty"`
+	// according to the signer's marshal implementation.
+	EcdsaPublicData []byte `protobuf:"bytes,2,opt,name=ecdsa_public_data,json=ecdsaPublicData,proto3" json:"ecdsa_public_data,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *PublicData) Reset() {
+	*x = PublicData{}
+	mi := &file_proto_signer_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublicData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublicData) ProtoMessage() {}
+
+func (x *PublicData) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublicData.ProtoReflect.Descriptor instead.
+func (*PublicData) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PublicData) GetFrostPublicData() []byte {
+	if x != nil {
+		return x.FrostPublicData
+	}
+	return nil
+}
+
+func (x *PublicData) GetEcdsaPublicData() []byte {
+	if x != nil {
+		return x.EcdsaPublicData
+	}
+	return nil
+}
+
+type VerifySignatureRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Signature     *tss_common.SignatureData `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty"`
+	PublicData    *PublicData               `protobuf:"bytes,2,opt,name=public_data,json=publicData,proto3" json:"public_data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifySignatureRequest) Reset() {
+	*x = VerifySignatureRequest{}
+	mi := &file_proto_signer_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifySignatureRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifySignatureRequest) ProtoMessage() {}
+
+func (x *VerifySignatureRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifySignatureRequest.ProtoReflect.Descriptor instead.
+func (*VerifySignatureRequest) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *VerifySignatureRequest) GetSignature() *tss_common.SignatureData {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
+func (x *VerifySignatureRequest) GetPublicData() *PublicData {
+	if x != nil {
+		return x.PublicData
+	}
+	return nil
+}
+
+type VerifySignatureResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsValid       bool                   `protobuf:"varint,1,opt,name=is_valid,json=isValid,proto3" json:"is_valid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifySignatureResponse) Reset() {
+	*x = VerifySignatureResponse{}
+	mi := &file_proto_signer_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifySignatureResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifySignatureResponse) ProtoMessage() {}
+
+func (x *VerifySignatureResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifySignatureResponse.ProtoReflect.Descriptor instead.
+func (*VerifySignatureResponse) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *VerifySignatureResponse) GetIsValid() bool {
+	if x != nil {
+		return x.IsValid
+	}
+	return false
+}
+
 var File_proto_signer_proto protoreflect.FileDescriptor
 
 const file_proto_signer_proto_rawDesc = "" +
@@ -396,9 +582,22 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\bculprits\x18\x03 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\bculprits\"\\\n" +
 	"\x0eWarningDetails\x124\n" +
 	"\bculprits\x18\x01 \x03(\v2\x18.xlabs.tsscommon.PartyIDR\bculprits\x12\x14\n" +
-	"\x05round\x18\x02 \x01(\x05R\x05round2v\n" +
+	"\x05round\x18\x02 \x01(\x05R\x05round\"\x13\n" +
+	"\x11PublicDataRequest\"d\n" +
+	"\n" +
+	"PublicData\x12*\n" +
+	"\x11frost_public_data\x18\x01 \x01(\fR\x0ffrostPublicData\x12*\n" +
+	"\x11ecdsa_public_data\x18\x02 \x01(\fR\x0fecdsaPublicData\"\xa3\x01\n" +
+	"\x16VerifySignatureRequest\x12<\n" +
+	"\tsignature\x18\x01 \x01(\v2\x1e.xlabs.tsscommon.SignatureDataR\tsignature\x12K\n" +
+	"\vpublic_data\x18\x02 \x01(\v2*.xlabs.tsscommon.service.signer.PublicDataR\n" +
+	"publicData\"4\n" +
+	"\x17VerifySignatureResponse\x12\x19\n" +
+	"\bis_valid\x18\x01 \x01(\bR\aisValid2\xeb\x02\n" +
 	"\x06Signer\x12l\n" +
-	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01B\x19Z\x17./service/signer;signerb\x06proto3"
+	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01\x12n\n" +
+	"\rGetPublicData\x121.xlabs.tsscommon.service.signer.PublicDataRequest\x1a*.xlabs.tsscommon.service.signer.PublicData\x12\x82\x01\n" +
+	"\x0fVerifySignature\x126.xlabs.tsscommon.service.signer.VerifySignatureRequest\x1a7.xlabs.tsscommon.service.signer.VerifySignatureResponseB\x19Z\x17./service/signer;signerb\x06proto3"
 
 var (
 	file_proto_signer_proto_rawDescOnce sync.Once
@@ -412,30 +611,40 @@ func file_proto_signer_proto_rawDescGZIP() []byte {
 	return file_proto_signer_proto_rawDescData
 }
 
-var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_proto_signer_proto_goTypes = []any{
 	(*SignRequest)(nil),              // 0: xlabs.tsscommon.service.signer.SignRequest
 	(*SignResponse)(nil),             // 1: xlabs.tsscommon.service.signer.SignResponse
 	(*SignStatus)(nil),               // 2: xlabs.tsscommon.service.signer.SignStatus
 	(*ErrorDetails)(nil),             // 3: xlabs.tsscommon.service.signer.ErrorDetails
 	(*WarningDetails)(nil),           // 4: xlabs.tsscommon.service.signer.WarningDetails
-	(*tss_common.SignatureData)(nil), // 5: xlabs.tsscommon.SignatureData
-	(*anypb.Any)(nil),                // 6: google.protobuf.Any
-	(*tss_common.PartyID)(nil),       // 7: xlabs.tsscommon.PartyID
+	(*PublicDataRequest)(nil),        // 5: xlabs.tsscommon.service.signer.PublicDataRequest
+	(*PublicData)(nil),               // 6: xlabs.tsscommon.service.signer.PublicData
+	(*VerifySignatureRequest)(nil),   // 7: xlabs.tsscommon.service.signer.VerifySignatureRequest
+	(*VerifySignatureResponse)(nil),  // 8: xlabs.tsscommon.service.signer.VerifySignatureResponse
+	(*tss_common.SignatureData)(nil), // 9: xlabs.tsscommon.SignatureData
+	(*anypb.Any)(nil),                // 10: google.protobuf.Any
+	(*tss_common.PartyID)(nil),       // 11: xlabs.tsscommon.PartyID
 }
 var file_proto_signer_proto_depIdxs = []int32{
-	5, // 0: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
-	2, // 1: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
-	6, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
-	7, // 3: xlabs.tsscommon.service.signer.ErrorDetails.culprits:type_name -> xlabs.tsscommon.PartyID
-	7, // 4: xlabs.tsscommon.service.signer.WarningDetails.culprits:type_name -> xlabs.tsscommon.PartyID
-	0, // 5: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
-	1, // 6: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	9,  // 0: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
+	2,  // 1: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
+	10, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
+	11, // 3: xlabs.tsscommon.service.signer.ErrorDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	11, // 4: xlabs.tsscommon.service.signer.WarningDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	9,  // 5: xlabs.tsscommon.service.signer.VerifySignatureRequest.signature:type_name -> xlabs.tsscommon.SignatureData
+	6,  // 6: xlabs.tsscommon.service.signer.VerifySignatureRequest.public_data:type_name -> xlabs.tsscommon.service.signer.PublicData
+	0,  // 7: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
+	5,  // 8: xlabs.tsscommon.service.signer.Signer.GetPublicData:input_type -> xlabs.tsscommon.service.signer.PublicDataRequest
+	7,  // 9: xlabs.tsscommon.service.signer.Signer.VerifySignature:input_type -> xlabs.tsscommon.service.signer.VerifySignatureRequest
+	1,  // 10: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
+	6,  // 11: xlabs.tsscommon.service.signer.Signer.GetPublicData:output_type -> xlabs.tsscommon.service.signer.PublicData
+	8,  // 12: xlabs.tsscommon.service.signer.Signer.VerifySignature:output_type -> xlabs.tsscommon.service.signer.VerifySignatureResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_proto_signer_proto_init() }
@@ -453,7 +662,7 @@ func file_proto_signer_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_signer_proto_rawDesc), len(file_proto_signer_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
