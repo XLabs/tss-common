@@ -407,9 +407,10 @@ func (*PublicDataRequest) Descriptor() ([]byte, []int) {
 
 type PublicData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// according to the signer's marshal implementation.
+	// the frost public data is a public key for schnorr-based FROST signatures that are adjusted to
+	// EVM's ecrecover.
 	FrostPublicData []byte `protobuf:"bytes,1,opt,name=frost_public_data,json=frostPublicData,proto3" json:"frost_public_data,omitempty"`
-	// according to the signer's marshal implementation.
+	// the ecdsa public data is a public key for ecdsa-based signatures.
 	EcdsaPublicData []byte `protobuf:"bytes,2,opt,name=ecdsa_public_data,json=ecdsaPublicData,proto3" json:"ecdsa_public_data,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -460,9 +461,11 @@ func (x *PublicData) GetEcdsaPublicData() []byte {
 }
 
 type VerifySignatureRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Signature     *tss_common.SignatureData `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty"`
-	PublicData    *PublicData               `protobuf:"bytes,2,opt,name=public_data,json=publicData,proto3" json:"public_data,omitempty"`
+	state     protoimpl.MessageState    `protogen:"open.v1"`
+	Signature *tss_common.SignatureData `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty"`
+	// PublicData the signature should be verified against.
+	// NOTE, a signature can be valid but not the output of the requested signer.
+	PublicData    *PublicData `protobuf:"bytes,2,opt,name=public_data,json=publicData,proto3" json:"public_data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

@@ -14,11 +14,13 @@ service Signer {
   // the signature data or the status (on failure).
   rpc SignMessage (stream SignRequest) returns (stream SignResponse);
 
-  // GetPublicData is a unary RPC, providing the requester with the signer's public data. 
-  // For instance, its public keys.
+  // GetPublicData is a unary RPC, providing the requester with the signer's 
+  // public data (all of its public keys).
   rpc GetPublicData(PublicDataRequest) returns (PublicData);
 
-  // VerifySignature is a unary RPC used to check the validity of a signature.
+  // VerifySignature is a unary RPC that verifies a signature against the provided public data.
+  // Namely, the signature can be valid, but it may have been signed by a
+  // different signer service with different public data.
   rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse);
 }
 
@@ -77,14 +79,17 @@ message WarningDetails {
 message PublicDataRequest {}
 
 message PublicData {
-  // according to the signer's marshal implementation.
+  // the frost public data is a public key for schnorr-based FROST signatures that are adjusted to 
+  // EVM's ecrecover.
   bytes frost_public_data = 1;
-  // according to the signer's marshal implementation.
+  // the ecdsa public data is a public key for ecdsa-based signatures.
   bytes ecdsa_public_data = 2;
 }
 
 message VerifySignatureRequest {
   SignatureData signature = 1;
+  // PublicData the signature should be verified against.
+  // NOTE, a signature can be valid but not the output of the requested signer.
   PublicData public_data = 2;
 }
 
