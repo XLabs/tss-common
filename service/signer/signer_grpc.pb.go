@@ -34,10 +34,12 @@ type SignerClient interface {
 	// The server responds with a stream of SignResponse messages containing either
 	// the signature data or the status (on failure).
 	SignMessage(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[SignRequest, SignResponse], error)
-	// GetPublicData is a unary RPC, providing the requester with the signer's public data.
-	// For instance, its public keys.
+	// GetPublicData is a unary RPC, providing the requester with the signer's
+	// public data (all of its public keys).
 	GetPublicData(ctx context.Context, in *PublicDataRequest, opts ...grpc.CallOption) (*PublicData, error)
-	// VerifySignature is a unary RPC used to check the validity of a signature.
+	// VerifySignature is a unary RPC that verifies a signature against the provided public data.
+	// Namely, the signature can be valid, but it may have been signed by a
+	// different signer service with different public data.
 	VerifySignature(ctx context.Context, in *VerifySignatureRequest, opts ...grpc.CallOption) (*VerifySignatureResponse, error)
 }
 
@@ -92,10 +94,12 @@ type SignerServer interface {
 	// The server responds with a stream of SignResponse messages containing either
 	// the signature data or the status (on failure).
 	SignMessage(grpc.BidiStreamingServer[SignRequest, SignResponse]) error
-	// GetPublicData is a unary RPC, providing the requester with the signer's public data.
-	// For instance, its public keys.
+	// GetPublicData is a unary RPC, providing the requester with the signer's
+	// public data (all of its public keys).
 	GetPublicData(context.Context, *PublicDataRequest) (*PublicData, error)
-	// VerifySignature is a unary RPC used to check the validity of a signature.
+	// VerifySignature is a unary RPC that verifies a signature against the provided public data.
+	// Namely, the signature can be valid, but it may have been signed by a
+	// different signer service with different public data.
 	VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error)
 	mustEmbedUnimplementedSignerServer()
 }
