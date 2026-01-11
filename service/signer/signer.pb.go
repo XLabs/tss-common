@@ -609,8 +609,12 @@ func (x *VerifySignatureResponse) GetIsValid() bool {
 }
 
 type UpdateKeysRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pairs         []*UpdateKeyPair       `protobuf:"bytes,1,rep,name=pairs,proto3" json:"pairs,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The pairs array cannot be empty, it shouldn't contain duplicated keys, or an
+	// escalating change (i.e., pairs[0] is an update that pairs[1] uses).
+	// All pairs should contain keys the signer recognize before the call to UpdateKeys.
+	// Anything else would lead to an error.
+	Pairs         []*UpdateKeyPair `protobuf:"bytes,1,rep,name=pairs,proto3" json:"pairs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -656,7 +660,7 @@ type TypedKey struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Type of the key.
 	Type TypedKey_KeyType `protobuf:"varint,1,opt,name=type,proto3,enum=xlabs.tsscommon.service.signer.TypedKey_KeyType" json:"type,omitempty"`
-	// key in byte representation.
+	// Key in byte representation.
 	Key           []byte `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -707,12 +711,12 @@ func (x *TypedKey) GetKey() []byte {
 }
 
 // UpdateKeyPair is used to update one key in the pair.
-// Set KnownKey with a key the signer should be able to recognsize.
-// Set updateKey with a key to change in the signer's inner key to peer mapping.
+// Set known_key with a key the signer should be able to recognize.
+// Set update_key with a key to change in the signer's inner key to peer mapping.
 type UpdateKeyPair struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	KnownKey      *TypedKey              `protobuf:"bytes,1,opt,name=knownKey,proto3" json:"knownKey,omitempty"`
-	UpdateKey     *TypedKey              `protobuf:"bytes,2,opt,name=updateKey,proto3" json:"updateKey,omitempty"`
+	KnownKey      *TypedKey              `protobuf:"bytes,1,opt,name=known_key,json=knownKey,proto3" json:"known_key,omitempty"`
+	UpdateKey     *TypedKey              `protobuf:"bytes,2,opt,name=update_key,json=updateKey,proto3" json:"update_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -845,10 +849,11 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\vUnspecified\x10\x00\x12\n" +
 	"\n" +
 	"\x06EthKey\x10\x01\x12\x0f\n" +
-	"\vP256CertKey\x10\x02\"\x9d\x01\n" +
-	"\rUpdateKeyPair\x12D\n" +
-	"\bknownKey\x18\x01 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\bknownKey\x12F\n" +
-	"\tupdateKey\x18\x02 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\tupdateKey\"\x14\n" +
+	"\vP256CertKey\x10\x02\"\x9f\x01\n" +
+	"\rUpdateKeyPair\x12E\n" +
+	"\tknown_key\x18\x01 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\bknownKey\x12G\n" +
+	"\n" +
+	"update_key\x18\x02 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\tupdateKey\"\x14\n" +
 	"\x12UpdateKeysResponse2\xe0\x03\n" +
 	"\x06Signer\x12l\n" +
 	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01\x12n\n" +
@@ -901,8 +906,8 @@ var file_proto_signer_proto_depIdxs = []int32{
 	7,  // 7: xlabs.tsscommon.service.signer.VerifySignatureRequest.public_data:type_name -> xlabs.tsscommon.service.signer.PublicData
 	12, // 8: xlabs.tsscommon.service.signer.UpdateKeysRequest.pairs:type_name -> xlabs.tsscommon.service.signer.UpdateKeyPair
 	0,  // 9: xlabs.tsscommon.service.signer.TypedKey.type:type_name -> xlabs.tsscommon.service.signer.TypedKey.KeyType
-	11, // 10: xlabs.tsscommon.service.signer.UpdateKeyPair.knownKey:type_name -> xlabs.tsscommon.service.signer.TypedKey
-	11, // 11: xlabs.tsscommon.service.signer.UpdateKeyPair.updateKey:type_name -> xlabs.tsscommon.service.signer.TypedKey
+	11, // 10: xlabs.tsscommon.service.signer.UpdateKeyPair.known_key:type_name -> xlabs.tsscommon.service.signer.TypedKey
+	11, // 11: xlabs.tsscommon.service.signer.UpdateKeyPair.update_key:type_name -> xlabs.tsscommon.service.signer.TypedKey
 	1,  // 12: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
 	6,  // 13: xlabs.tsscommon.service.signer.Signer.GetPublicData:input_type -> xlabs.tsscommon.service.signer.PublicDataRequest
 	8,  // 14: xlabs.tsscommon.service.signer.Signer.VerifySignature:input_type -> xlabs.tsscommon.service.signer.VerifySignatureRequest
