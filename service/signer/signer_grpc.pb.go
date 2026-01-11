@@ -22,6 +22,7 @@ const (
 	Signer_SignMessage_FullMethodName     = "/xlabs.tsscommon.service.signer.Signer/SignMessage"
 	Signer_GetPublicData_FullMethodName   = "/xlabs.tsscommon.service.signer.Signer/GetPublicData"
 	Signer_VerifySignature_FullMethodName = "/xlabs.tsscommon.service.signer.Signer/VerifySignature"
+	Signer_UpdateKeys_FullMethodName      = "/xlabs.tsscommon.service.signer.Signer/UpdateKeys"
 )
 
 // SignerClient is the client API for Signer service.
@@ -41,6 +42,9 @@ type SignerClient interface {
 	// Namely, the signature can be valid, but it may have been signed by a
 	// different signer service with different public data.
 	VerifySignature(ctx context.Context, in *VerifySignatureRequest, opts ...grpc.CallOption) (*VerifySignatureResponse, error)
+	// Will update the stored public keys of the signer on a set of peers (according to the provided key pairs)
+	// Will abort the entire task on the first failed update.
+	UpdateKeys(ctx context.Context, in *UpdateKeysRequest, opts ...grpc.CallOption) (*UpdateKeysResponse, error)
 }
 
 type signerClient struct {
@@ -84,6 +88,16 @@ func (c *signerClient) VerifySignature(ctx context.Context, in *VerifySignatureR
 	return out, nil
 }
 
+func (c *signerClient) UpdateKeys(ctx context.Context, in *UpdateKeysRequest, opts ...grpc.CallOption) (*UpdateKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateKeysResponse)
+	err := c.cc.Invoke(ctx, Signer_UpdateKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SignerServer is the server API for Signer service.
 // All implementations must embed UnimplementedSignerServer
 // for forward compatibility.
@@ -101,6 +115,9 @@ type SignerServer interface {
 	// Namely, the signature can be valid, but it may have been signed by a
 	// different signer service with different public data.
 	VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error)
+	// Will update the stored public keys of the signer on a set of peers (according to the provided key pairs)
+	// Will abort the entire task on the first failed update.
+	UpdateKeys(context.Context, *UpdateKeysRequest) (*UpdateKeysResponse, error)
 	mustEmbedUnimplementedSignerServer()
 }
 
@@ -119,6 +136,9 @@ func (UnimplementedSignerServer) GetPublicData(context.Context, *PublicDataReque
 }
 func (UnimplementedSignerServer) VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifySignature not implemented")
+}
+func (UnimplementedSignerServer) UpdateKeys(context.Context, *UpdateKeysRequest) (*UpdateKeysResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateKeys not implemented")
 }
 func (UnimplementedSignerServer) mustEmbedUnimplementedSignerServer() {}
 func (UnimplementedSignerServer) testEmbeddedByValue()                {}
@@ -184,6 +204,24 @@ func _Signer_VerifySignature_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Signer_UpdateKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignerServer).UpdateKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Signer_UpdateKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignerServer).UpdateKeys(ctx, req.(*UpdateKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Signer_ServiceDesc is the grpc.ServiceDesc for Signer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -198,6 +236,10 @@ var Signer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifySignature",
 			Handler:    _Signer_VerifySignature_Handler,
+		},
+		{
+			MethodName: "UpdateKeys",
+			Handler:    _Signer_UpdateKeys_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

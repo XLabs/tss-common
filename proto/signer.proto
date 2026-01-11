@@ -22,6 +22,10 @@ service Signer {
   // Namely, the signature can be valid, but it may have been signed by a
   // different signer service with different public data.
   rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse);
+
+  // Will update the stored public keys of the signer on a set of peers (according to the provided key pairs)
+  // Will abort the entire task on the first failed update.
+  rpc UpdateKeys(UpdateKeysRequest) returns (UpdateKeysResponse);
 }
 
 
@@ -32,7 +36,8 @@ message SignRequest {
   string protocol = 2;
   // The committee members involved in the signing process. 
   // Each member should be an Ethereum address.
-  repeated bytes committee = 3; 
+  // TODO: Support any TypedKey type.
+  repeated TypedKey committee = 3; 
 }
 
 message SignResponse {
@@ -96,3 +101,29 @@ message VerifySignatureRequest {
 message VerifySignatureResponse {
   bool is_valid = 1;
 }
+
+message UpdateKeysRequest{
+  repeated UpdateKeyPair pairs = 1; 
+}
+
+message TypedKey {
+  enum KeyType {
+    Unspecified = 0; // default, should not be used.
+    EthKey = 1;      // Ethereum address (public key, 20 bytes).
+    P256CertKey = 2; // keys used by TLS certs (currently only P256 public key are supported).
+  } 
+  // Type of the key.
+  KeyType type = 1;
+  // key in byte representation.
+  bytes key = 2;
+}
+
+// UpdateKeyPair is used to update one key in the pair.
+// Set KnownKey with a key the signer should be able to recognsize.
+// Set updateKey with a key to change in the signer's inner key to peer mapping.
+message UpdateKeyPair {
+   TypedKey knownKey = 1;
+   TypedKey updateKey = 2;
+}
+
+message UpdateKeysResponse {}
