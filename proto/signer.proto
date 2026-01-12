@@ -114,7 +114,7 @@ message TypedKey {
   enum KeyType {
     Unspecified = 0; // default, should not be used.
     EthKey = 1;      // Ethereum address (public key, 20 bytes).
-    P256CertKey = 2; // keys used by TLS certs (currently only P256 public key are supported).
+    CertKey = 2;     // A self-signed certificate used for TLS authentication of peers.
   } 
   // Type of the key.
   KeyType type = 1;

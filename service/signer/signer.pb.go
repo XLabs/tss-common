@@ -28,7 +28,7 @@ type TypedKey_KeyType int32
 const (
 	TypedKey_Unspecified TypedKey_KeyType = 0 // default, should not be used.
 	TypedKey_EthKey      TypedKey_KeyType = 1 // Ethereum address (public key, 20 bytes).
-	TypedKey_P256CertKey TypedKey_KeyType = 2 // keys used by TLS certs (currently only P256 public key are supported).
+	TypedKey_CertKey     TypedKey_KeyType = 2 // A self-signed certificate used for TLS authentication of peers.
 )
 
 // Enum value maps for TypedKey_KeyType.
@@ -36,12 +36,12 @@ var (
 	TypedKey_KeyType_name = map[int32]string{
 		0: "Unspecified",
 		1: "EthKey",
-		2: "P256CertKey",
+		2: "CertKey",
 	}
 	TypedKey_KeyType_value = map[string]int32{
 		"Unspecified": 0,
 		"EthKey":      1,
-		"P256CertKey": 2,
+		"CertKey":     2,
 	}
 )
 
@@ -841,15 +841,15 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\x17VerifySignatureResponse\x12\x19\n" +
 	"\bis_valid\x18\x01 \x01(\bR\aisValid\"X\n" +
 	"\x11UpdateKeysRequest\x12C\n" +
-	"\x05pairs\x18\x01 \x03(\v2-.xlabs.tsscommon.service.signer.UpdateKeyPairR\x05pairs\"\x9b\x01\n" +
+	"\x05pairs\x18\x01 \x03(\v2-.xlabs.tsscommon.service.signer.UpdateKeyPairR\x05pairs\"\x97\x01\n" +
 	"\bTypedKey\x12D\n" +
 	"\x04type\x18\x01 \x01(\x0e20.xlabs.tsscommon.service.signer.TypedKey.KeyTypeR\x04type\x12\x10\n" +
-	"\x03key\x18\x02 \x01(\fR\x03key\"7\n" +
+	"\x03key\x18\x02 \x01(\fR\x03key\"3\n" +
 	"\aKeyType\x12\x0f\n" +
 	"\vUnspecified\x10\x00\x12\n" +
 	"\n" +
-	"\x06EthKey\x10\x01\x12\x0f\n" +
-	"\vP256CertKey\x10\x02\"\x9f\x01\n" +
+	"\x06EthKey\x10\x01\x12\v\n" +
+	"\aCertKey\x10\x02\"\x9f\x01\n" +
 	"\rUpdateKeyPair\x12E\n" +
 	"\tknown_key\x18\x01 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\bknownKey\x12G\n" +
 	"\n" +
