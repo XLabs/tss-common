@@ -42,8 +42,11 @@ type SignerClient interface {
 	// Namely, the signature can be valid, but it may have been signed by a
 	// different signer service with different public data.
 	VerifySignature(ctx context.Context, in *VerifySignatureRequest, opts ...grpc.CallOption) (*VerifySignatureResponse, error)
-	// Will update the stored public keys of the signer on a set of peers (according to the provided key pairs)
-	// Will abort the entire task on the first failed update.
+	// Updates the stored public keys of the signer on a set of peers (according to the provided key pairs)
+	// The UpdateKeys RPC creates a copy of the existing public keys storage and applies changes on this copy.
+	// Once all updates were applied, it backs up the original storage and replaces it with the copy.
+	// Since this procedure applies changes to a copy, any failure will abort the entire process without affecting
+	// the state of the signer (i.e., complete rollback).
 	UpdateKeys(ctx context.Context, in *UpdateKeysRequest, opts ...grpc.CallOption) (*UpdateKeysResponse, error)
 }
 
@@ -115,8 +118,11 @@ type SignerServer interface {
 	// Namely, the signature can be valid, but it may have been signed by a
 	// different signer service with different public data.
 	VerifySignature(context.Context, *VerifySignatureRequest) (*VerifySignatureResponse, error)
-	// Will update the stored public keys of the signer on a set of peers (according to the provided key pairs)
-	// Will abort the entire task on the first failed update.
+	// Updates the stored public keys of the signer on a set of peers (according to the provided key pairs)
+	// The UpdateKeys RPC creates a copy of the existing public keys storage and applies changes on this copy.
+	// Once all updates were applied, it backs up the original storage and replaces it with the copy.
+	// Since this procedure applies changes to a copy, any failure will abort the entire process without affecting
+	// the state of the signer (i.e., complete rollback).
 	UpdateKeys(context.Context, *UpdateKeysRequest) (*UpdateKeysResponse, error)
 	mustEmbedUnimplementedSignerServer()
 }
