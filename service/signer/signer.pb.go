@@ -23,6 +23,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type TypedKey_KeyType int32
+
+const (
+	TypedKey_Unspecified TypedKey_KeyType = 0 // default, should not be used.
+	TypedKey_EthKey      TypedKey_KeyType = 1 // Ethereum address (public key, 20 bytes).
+	TypedKey_CertKey     TypedKey_KeyType = 2 // A self-signed certificate used for TLS authentication of peers.
+)
+
+// Enum value maps for TypedKey_KeyType.
+var (
+	TypedKey_KeyType_name = map[int32]string{
+		0: "Unspecified",
+		1: "EthKey",
+		2: "CertKey",
+	}
+	TypedKey_KeyType_value = map[string]int32{
+		"Unspecified": 0,
+		"EthKey":      1,
+		"CertKey":     2,
+	}
+)
+
+func (x TypedKey_KeyType) Enum() *TypedKey_KeyType {
+	p := new(TypedKey_KeyType)
+	*p = x
+	return p
+}
+
+func (x TypedKey_KeyType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TypedKey_KeyType) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_signer_proto_enumTypes[0].Descriptor()
+}
+
+func (TypedKey_KeyType) Type() protoreflect.EnumType {
+	return &file_proto_signer_proto_enumTypes[0]
+}
+
+func (x TypedKey_KeyType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TypedKey_KeyType.Descriptor instead.
+func (TypedKey_KeyType) EnumDescriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{10, 0}
+}
+
 type SignRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A 32-byte digest to be signed.
@@ -31,7 +80,8 @@ type SignRequest struct {
 	Protocol string `protobuf:"bytes,2,opt,name=protocol,proto3" json:"protocol,omitempty"`
 	// The committee members involved in the signing process.
 	// Each member should be an Ethereum address.
-	Committee     [][]byte `protobuf:"bytes,3,rep,name=committee,proto3" json:"committee,omitempty"`
+	// TODO: Support any TypedKey type.
+	Committee     []*TypedKey `protobuf:"bytes,3,rep,name=committee,proto3" json:"committee,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -80,7 +130,7 @@ func (x *SignRequest) GetProtocol() string {
 	return ""
 }
 
-func (x *SignRequest) GetCommittee() [][]byte {
+func (x *SignRequest) GetCommittee() []*TypedKey {
 	if x != nil {
 		return x.Committee
 	}
@@ -558,15 +608,208 @@ func (x *VerifySignatureResponse) GetIsValid() bool {
 	return false
 }
 
+type UpdateKeysRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The pairs array cannot be empty, it shouldn't contain duplicated keys, or an
+	// escalating change (i.e., pairs[0] is an update that pairs[1] uses).
+	// All pairs should contain keys the signer recognize before the call to UpdateKeys.
+	// Anything else would lead to an error.
+	Pairs         []*UpdateKeyPair `protobuf:"bytes,1,rep,name=pairs,proto3" json:"pairs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateKeysRequest) Reset() {
+	*x = UpdateKeysRequest{}
+	mi := &file_proto_signer_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateKeysRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateKeysRequest) ProtoMessage() {}
+
+func (x *UpdateKeysRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateKeysRequest.ProtoReflect.Descriptor instead.
+func (*UpdateKeysRequest) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateKeysRequest) GetPairs() []*UpdateKeyPair {
+	if x != nil {
+		return x.Pairs
+	}
+	return nil
+}
+
+type TypedKey struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Type of the key.
+	Type TypedKey_KeyType `protobuf:"varint,1,opt,name=type,proto3,enum=xlabs.tsscommon.service.signer.TypedKey_KeyType" json:"type,omitempty"`
+	// Key in byte representation.
+	Key           []byte `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TypedKey) Reset() {
+	*x = TypedKey{}
+	mi := &file_proto_signer_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TypedKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TypedKey) ProtoMessage() {}
+
+func (x *TypedKey) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TypedKey.ProtoReflect.Descriptor instead.
+func (*TypedKey) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *TypedKey) GetType() TypedKey_KeyType {
+	if x != nil {
+		return x.Type
+	}
+	return TypedKey_Unspecified
+}
+
+func (x *TypedKey) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+// UpdateKeyPair is used to update one key in the pair.
+// Set known_key with a key the signer should be able to recognize.
+// Set update_key with a key to change in the signer's inner key to peer mapping.
+type UpdateKeyPair struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	KnownKey      *TypedKey              `protobuf:"bytes,1,opt,name=known_key,json=knownKey,proto3" json:"known_key,omitempty"`
+	UpdateKey     *TypedKey              `protobuf:"bytes,2,opt,name=update_key,json=updateKey,proto3" json:"update_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateKeyPair) Reset() {
+	*x = UpdateKeyPair{}
+	mi := &file_proto_signer_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateKeyPair) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateKeyPair) ProtoMessage() {}
+
+func (x *UpdateKeyPair) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateKeyPair.ProtoReflect.Descriptor instead.
+func (*UpdateKeyPair) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UpdateKeyPair) GetKnownKey() *TypedKey {
+	if x != nil {
+		return x.KnownKey
+	}
+	return nil
+}
+
+func (x *UpdateKeyPair) GetUpdateKey() *TypedKey {
+	if x != nil {
+		return x.UpdateKey
+	}
+	return nil
+}
+
+type UpdateKeysResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateKeysResponse) Reset() {
+	*x = UpdateKeysResponse{}
+	mi := &file_proto_signer_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateKeysResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateKeysResponse) ProtoMessage() {}
+
+func (x *UpdateKeysResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_signer_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateKeysResponse.ProtoReflect.Descriptor instead.
+func (*UpdateKeysResponse) Descriptor() ([]byte, []int) {
+	return file_proto_signer_proto_rawDescGZIP(), []int{12}
+}
+
 var File_proto_signer_proto protoreflect.FileDescriptor
 
 const file_proto_signer_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/signer.proto\x12\x1exlabs.tsscommon.service.signer\x1a\x19google/protobuf/any.proto\x1a\x0eproto/io.proto\"_\n" +
+	"\x12proto/signer.proto\x12\x1exlabs.tsscommon.service.signer\x1a\x19google/protobuf/any.proto\x1a\x0eproto/io.proto\"\x89\x01\n" +
 	"\vSignRequest\x12\x16\n" +
 	"\x06digest\x18\x01 \x01(\fR\x06digest\x12\x1a\n" +
-	"\bprotocol\x18\x02 \x01(\tR\bprotocol\x12\x1c\n" +
-	"\tcommittee\x18\x03 \x03(\fR\tcommittee\"\xa0\x01\n" +
+	"\bprotocol\x18\x02 \x01(\tR\bprotocol\x12F\n" +
+	"\tcommittee\x18\x03 \x03(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\tcommittee\"\xa0\x01\n" +
 	"\fSignResponse\x12>\n" +
 	"\tsignature\x18\x01 \x01(\v2\x1e.xlabs.tsscommon.SignatureDataH\x00R\tsignature\x12D\n" +
 	"\x06status\x18\x02 \x01(\v2*.xlabs.tsscommon.service.signer.SignStatusH\x00R\x06statusB\n" +
@@ -596,11 +839,28 @@ const file_proto_signer_proto_rawDesc = "" +
 	"\vpublic_data\x18\x02 \x01(\v2*.xlabs.tsscommon.service.signer.PublicDataR\n" +
 	"publicData\"4\n" +
 	"\x17VerifySignatureResponse\x12\x19\n" +
-	"\bis_valid\x18\x01 \x01(\bR\aisValid2\xeb\x02\n" +
+	"\bis_valid\x18\x01 \x01(\bR\aisValid\"X\n" +
+	"\x11UpdateKeysRequest\x12C\n" +
+	"\x05pairs\x18\x01 \x03(\v2-.xlabs.tsscommon.service.signer.UpdateKeyPairR\x05pairs\"\x97\x01\n" +
+	"\bTypedKey\x12D\n" +
+	"\x04type\x18\x01 \x01(\x0e20.xlabs.tsscommon.service.signer.TypedKey.KeyTypeR\x04type\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\fR\x03key\"3\n" +
+	"\aKeyType\x12\x0f\n" +
+	"\vUnspecified\x10\x00\x12\n" +
+	"\n" +
+	"\x06EthKey\x10\x01\x12\v\n" +
+	"\aCertKey\x10\x02\"\x9f\x01\n" +
+	"\rUpdateKeyPair\x12E\n" +
+	"\tknown_key\x18\x01 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\bknownKey\x12G\n" +
+	"\n" +
+	"update_key\x18\x02 \x01(\v2(.xlabs.tsscommon.service.signer.TypedKeyR\tupdateKey\"\x14\n" +
+	"\x12UpdateKeysResponse2\xe0\x03\n" +
 	"\x06Signer\x12l\n" +
 	"\vSignMessage\x12+.xlabs.tsscommon.service.signer.SignRequest\x1a,.xlabs.tsscommon.service.signer.SignResponse(\x010\x01\x12n\n" +
 	"\rGetPublicData\x121.xlabs.tsscommon.service.signer.PublicDataRequest\x1a*.xlabs.tsscommon.service.signer.PublicData\x12\x82\x01\n" +
-	"\x0fVerifySignature\x126.xlabs.tsscommon.service.signer.VerifySignatureRequest\x1a7.xlabs.tsscommon.service.signer.VerifySignatureResponseB\x19Z\x17./service/signer;signerb\x06proto3"
+	"\x0fVerifySignature\x126.xlabs.tsscommon.service.signer.VerifySignatureRequest\x1a7.xlabs.tsscommon.service.signer.VerifySignatureResponse\x12s\n" +
+	"\n" +
+	"UpdateKeys\x121.xlabs.tsscommon.service.signer.UpdateKeysRequest\x1a2.xlabs.tsscommon.service.signer.UpdateKeysResponseB\x19Z\x17./service/signer;signerb\x06proto3"
 
 var (
 	file_proto_signer_proto_rawDescOnce sync.Once
@@ -614,40 +874,53 @@ func file_proto_signer_proto_rawDescGZIP() []byte {
 	return file_proto_signer_proto_rawDescData
 }
 
-var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_proto_signer_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_proto_signer_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_proto_signer_proto_goTypes = []any{
-	(*SignRequest)(nil),              // 0: xlabs.tsscommon.service.signer.SignRequest
-	(*SignResponse)(nil),             // 1: xlabs.tsscommon.service.signer.SignResponse
-	(*SignStatus)(nil),               // 2: xlabs.tsscommon.service.signer.SignStatus
-	(*ErrorDetails)(nil),             // 3: xlabs.tsscommon.service.signer.ErrorDetails
-	(*WarningDetails)(nil),           // 4: xlabs.tsscommon.service.signer.WarningDetails
-	(*PublicDataRequest)(nil),        // 5: xlabs.tsscommon.service.signer.PublicDataRequest
-	(*PublicData)(nil),               // 6: xlabs.tsscommon.service.signer.PublicData
-	(*VerifySignatureRequest)(nil),   // 7: xlabs.tsscommon.service.signer.VerifySignatureRequest
-	(*VerifySignatureResponse)(nil),  // 8: xlabs.tsscommon.service.signer.VerifySignatureResponse
-	(*tss_common.SignatureData)(nil), // 9: xlabs.tsscommon.SignatureData
-	(*anypb.Any)(nil),                // 10: google.protobuf.Any
-	(*tss_common.PartyID)(nil),       // 11: xlabs.tsscommon.PartyID
+	(TypedKey_KeyType)(0),            // 0: xlabs.tsscommon.service.signer.TypedKey.KeyType
+	(*SignRequest)(nil),              // 1: xlabs.tsscommon.service.signer.SignRequest
+	(*SignResponse)(nil),             // 2: xlabs.tsscommon.service.signer.SignResponse
+	(*SignStatus)(nil),               // 3: xlabs.tsscommon.service.signer.SignStatus
+	(*ErrorDetails)(nil),             // 4: xlabs.tsscommon.service.signer.ErrorDetails
+	(*WarningDetails)(nil),           // 5: xlabs.tsscommon.service.signer.WarningDetails
+	(*PublicDataRequest)(nil),        // 6: xlabs.tsscommon.service.signer.PublicDataRequest
+	(*PublicData)(nil),               // 7: xlabs.tsscommon.service.signer.PublicData
+	(*VerifySignatureRequest)(nil),   // 8: xlabs.tsscommon.service.signer.VerifySignatureRequest
+	(*VerifySignatureResponse)(nil),  // 9: xlabs.tsscommon.service.signer.VerifySignatureResponse
+	(*UpdateKeysRequest)(nil),        // 10: xlabs.tsscommon.service.signer.UpdateKeysRequest
+	(*TypedKey)(nil),                 // 11: xlabs.tsscommon.service.signer.TypedKey
+	(*UpdateKeyPair)(nil),            // 12: xlabs.tsscommon.service.signer.UpdateKeyPair
+	(*UpdateKeysResponse)(nil),       // 13: xlabs.tsscommon.service.signer.UpdateKeysResponse
+	(*tss_common.SignatureData)(nil), // 14: xlabs.tsscommon.SignatureData
+	(*anypb.Any)(nil),                // 15: google.protobuf.Any
+	(*tss_common.PartyID)(nil),       // 16: xlabs.tsscommon.PartyID
 }
 var file_proto_signer_proto_depIdxs = []int32{
-	9,  // 0: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
-	2,  // 1: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
-	10, // 2: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
-	11, // 3: xlabs.tsscommon.service.signer.ErrorDetails.culprits:type_name -> xlabs.tsscommon.PartyID
-	11, // 4: xlabs.tsscommon.service.signer.WarningDetails.culprits:type_name -> xlabs.tsscommon.PartyID
-	9,  // 5: xlabs.tsscommon.service.signer.VerifySignatureRequest.signature:type_name -> xlabs.tsscommon.SignatureData
-	6,  // 6: xlabs.tsscommon.service.signer.VerifySignatureRequest.public_data:type_name -> xlabs.tsscommon.service.signer.PublicData
-	0,  // 7: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
-	5,  // 8: xlabs.tsscommon.service.signer.Signer.GetPublicData:input_type -> xlabs.tsscommon.service.signer.PublicDataRequest
-	7,  // 9: xlabs.tsscommon.service.signer.Signer.VerifySignature:input_type -> xlabs.tsscommon.service.signer.VerifySignatureRequest
-	1,  // 10: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
-	6,  // 11: xlabs.tsscommon.service.signer.Signer.GetPublicData:output_type -> xlabs.tsscommon.service.signer.PublicData
-	8,  // 12: xlabs.tsscommon.service.signer.Signer.VerifySignature:output_type -> xlabs.tsscommon.service.signer.VerifySignatureResponse
-	10, // [10:13] is the sub-list for method output_type
-	7,  // [7:10] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	11, // 0: xlabs.tsscommon.service.signer.SignRequest.committee:type_name -> xlabs.tsscommon.service.signer.TypedKey
+	14, // 1: xlabs.tsscommon.service.signer.SignResponse.signature:type_name -> xlabs.tsscommon.SignatureData
+	3,  // 2: xlabs.tsscommon.service.signer.SignResponse.status:type_name -> xlabs.tsscommon.service.signer.SignStatus
+	15, // 3: xlabs.tsscommon.service.signer.SignStatus.details:type_name -> google.protobuf.Any
+	16, // 4: xlabs.tsscommon.service.signer.ErrorDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	16, // 5: xlabs.tsscommon.service.signer.WarningDetails.culprits:type_name -> xlabs.tsscommon.PartyID
+	14, // 6: xlabs.tsscommon.service.signer.VerifySignatureRequest.signature:type_name -> xlabs.tsscommon.SignatureData
+	7,  // 7: xlabs.tsscommon.service.signer.VerifySignatureRequest.public_data:type_name -> xlabs.tsscommon.service.signer.PublicData
+	12, // 8: xlabs.tsscommon.service.signer.UpdateKeysRequest.pairs:type_name -> xlabs.tsscommon.service.signer.UpdateKeyPair
+	0,  // 9: xlabs.tsscommon.service.signer.TypedKey.type:type_name -> xlabs.tsscommon.service.signer.TypedKey.KeyType
+	11, // 10: xlabs.tsscommon.service.signer.UpdateKeyPair.known_key:type_name -> xlabs.tsscommon.service.signer.TypedKey
+	11, // 11: xlabs.tsscommon.service.signer.UpdateKeyPair.update_key:type_name -> xlabs.tsscommon.service.signer.TypedKey
+	1,  // 12: xlabs.tsscommon.service.signer.Signer.SignMessage:input_type -> xlabs.tsscommon.service.signer.SignRequest
+	6,  // 13: xlabs.tsscommon.service.signer.Signer.GetPublicData:input_type -> xlabs.tsscommon.service.signer.PublicDataRequest
+	8,  // 14: xlabs.tsscommon.service.signer.Signer.VerifySignature:input_type -> xlabs.tsscommon.service.signer.VerifySignatureRequest
+	10, // 15: xlabs.tsscommon.service.signer.Signer.UpdateKeys:input_type -> xlabs.tsscommon.service.signer.UpdateKeysRequest
+	2,  // 16: xlabs.tsscommon.service.signer.Signer.SignMessage:output_type -> xlabs.tsscommon.service.signer.SignResponse
+	7,  // 17: xlabs.tsscommon.service.signer.Signer.GetPublicData:output_type -> xlabs.tsscommon.service.signer.PublicData
+	9,  // 18: xlabs.tsscommon.service.signer.Signer.VerifySignature:output_type -> xlabs.tsscommon.service.signer.VerifySignatureResponse
+	13, // 19: xlabs.tsscommon.service.signer.Signer.UpdateKeys:output_type -> xlabs.tsscommon.service.signer.UpdateKeysResponse
+	16, // [16:20] is the sub-list for method output_type
+	12, // [12:16] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_proto_signer_proto_init() }
@@ -664,13 +937,14 @@ func file_proto_signer_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_signer_proto_rawDesc), len(file_proto_signer_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_proto_signer_proto_goTypes,
 		DependencyIndexes: file_proto_signer_proto_depIdxs,
+		EnumInfos:         file_proto_signer_proto_enumTypes,
 		MessageInfos:      file_proto_signer_proto_msgTypes,
 	}.Build()
 	File_proto_signer_proto = out.File

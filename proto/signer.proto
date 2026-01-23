@@ -22,6 +22,13 @@ service Signer {
   // Namely, the signature can be valid, but it may have been signed by a
   // different signer service with different public data.
   rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse);
+
+ // Updates the stored public keys of the signer on a set of peers (according to the provided key pairs) 
+ // The UpdateKeys RPC creates a copy of the existing public keys storage and applies changes on this copy. 
+ // Once all updates were applied, it backs up the original storage and replaces it with the copy. 
+ // Since this procedure applies changes to a copy, any failure will abort the entire process without affecting 
+ // the state of the signer (i.e., complete rollback).
+  rpc UpdateKeys(UpdateKeysRequest) returns (UpdateKeysResponse);
 }
 
 
@@ -32,7 +39,8 @@ message SignRequest {
   string protocol = 2;
   // The committee members involved in the signing process. 
   // Each member should be an Ethereum address.
-  repeated bytes committee = 3; 
+  // TODO: Support any TypedKey type.
+  repeated TypedKey committee = 3; 
 }
 
 message SignResponse {
@@ -96,3 +104,33 @@ message VerifySignatureRequest {
 message VerifySignatureResponse {
   bool is_valid = 1;
 }
+
+message UpdateKeysRequest{
+  // The pairs array cannot be empty, it shouldn't contain duplicated keys, or an
+  // escalating change (i.e., pairs[0] is an update that pairs[1] uses).
+  // All pairs should contain keys the signer recognize before the call to UpdateKeys.
+  // Anything else would lead to an error.
+  repeated UpdateKeyPair pairs = 1; 
+}
+
+message TypedKey {
+  enum KeyType {
+    Unspecified = 0; // default, should not be used.
+    EthKey = 1;      // Ethereum address (public key, 20 bytes).
+    CertKey = 2;     // A self-signed certificate used for TLS authentication of peers.
+  } 
+  // Type of the key.
+  KeyType type = 1;
+  // Key in byte representation.
+  bytes key = 2;
+}
+
+// UpdateKeyPair is used to update one key in the pair.
+// Set known_key with a key the signer should be able to recognize.
+// Set update_key with a key to change in the signer's inner key to peer mapping.
+message UpdateKeyPair {
+   TypedKey known_key = 1;
+   TypedKey update_key = 2;
+}
+
+message UpdateKeysResponse {}
