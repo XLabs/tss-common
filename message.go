@@ -8,50 +8,6 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-// ProtocolType represents the type of cryptographic protocol in use.
-type ProtocolType string
-
-const (
-	// String protocol identifiers
-	ProtocolFROSTSign ProtocolType = "FROST:SIGN"
-	ProtocolFROSTDKG  ProtocolType = "FROST:DKG"
-	ProtocolECDSASign ProtocolType = "ECDSA:SIGN"
-	ProtocolECDSADKG  ProtocolType = "ECDSA:DKG"
-)
-
-// Integer protocol identifiers (useful for internal indexing, enums, etc.)
-const (
-	protocolTypeMin = iota
-	protocolTypeFROSTSign
-	protocolTypeFROSTDKG
-	protocolTypeECDSASign
-	protocolTypeECDSADKG
-	protocolTypeMax
-)
-
-func (p ProtocolType) ToString() string {
-	return string(p)
-}
-
-func (p ProtocolType) ToInt() int {
-	switch p {
-	case ProtocolFROSTSign:
-		return protocolTypeFROSTSign
-	case ProtocolFROSTDKG:
-		return protocolTypeFROSTDKG
-	case ProtocolECDSASign:
-		return protocolTypeECDSASign
-	case ProtocolECDSADKG:
-		return protocolTypeECDSADKG
-	default:
-		return -1
-	}
-}
-
-func isValidProtocolType(n int) bool {
-	return n > protocolTypeMin && n < protocolTypeMax
-}
-
 type (
 	// Message describes the interface of the TSS Message for all protocols
 	Message interface {

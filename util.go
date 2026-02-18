@@ -73,7 +73,6 @@ var (
 	errTrackidMustHaveProtocolType = fmt.Errorf("TrackingID must have a non-empty ProtocolType part")
 	errTrackidStringEmpty          = fmt.Errorf("TrackingID string cannot be empty")
 	errTrackidInvalidFormat        = fmt.Errorf("invalid TrackingID format, expected 'ProtocolType-Digest-PartiesState-AuxiliaryData'")
-	errUnknownProtocolType         = fmt.Errorf("unknown protocol type in TrackingID")
 )
 
 // FromString parses a string representation of a TrackingID into the
@@ -121,7 +120,7 @@ func (t *TrackingID) FromString(s string) error {
 	}
 
 	if !isValidProtocolType(protocolInt) {
-		return errUnknownProtocolType
+		return ErrUnknownProtocolType
 	}
 
 	t.Protocol = uint32(protocolInt)
@@ -196,20 +195,5 @@ func (t *TrackingID) GetProtocolType() (ProtocolType, error) {
 		return "", errNilTrackID
 	}
 
-	if !isValidProtocolType(int(t.Protocol)) {
-		return "", errUnknownProtocolType
-	}
-
-	switch int(t.Protocol) {
-	case protocolTypeFROSTSign:
-		return ProtocolFROSTSign, nil
-	case protocolTypeFROSTDKG:
-		return ProtocolFROSTDKG, nil
-	case protocolTypeECDSASign:
-		return ProtocolECDSASign, nil
-	case protocolTypeECDSADKG:
-		return ProtocolECDSADKG, nil
-	default:
-		return "", errUnknownProtocolType
-	}
+	return ProtocolTypeFromInt(int(t.Protocol))
 }

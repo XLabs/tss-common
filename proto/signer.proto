@@ -1,0 +1,136 @@
+
+syntax = "proto3";
+package xlabs.tsscommon.service.signer;
+option go_package = "./service/signer;signer";
+import "google/protobuf/any.proto";
+import "proto/io.proto";
+
+
+service Signer {
+  // SignMessage is a bidirectional streaming RPC to sign a message digest using TSS.
+  // The client sends a stream of SignRequest messages containing the digest to be signed,
+  // the protocol type, and the committee members involved in the signing process.
+  // The server responds with a stream of SignResponse messages containing either
+  // the signature data or the status (on failure).
+  rpc SignMessage (stream SignRequest) returns (stream SignResponse);
+
+  // GetPublicData is a unary RPC, providing the requester with the signer's 
+  // public data (all of its public keys).
+  rpc GetPublicData(PublicDataRequest) returns (PublicData);
+
+  // VerifySignature is a unary RPC that verifies a signature against the provided public data.
+  // Namely, the signature can be valid, but it may have been signed by a
+  // different signer service with different public data.
+  rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse);
+
+ // Updates the stored public keys of the signer on a set of peers (according to the provided key pairs) 
+ // The UpdateKeys RPC creates a copy of the existing public keys storage and applies changes on this copy. 
+ // Once all updates were applied, it backs up the original storage and replaces it with the copy. 
+ // Since this procedure applies changes to a copy, any failure will abort the entire process without affecting 
+ // the state of the signer (i.e., complete rollback).
+  rpc UpdateKeys(UpdateKeysRequest) returns (UpdateKeysResponse);
+}
+
+
+message SignRequest {
+  // A 32-byte digest to be signed.
+  bytes digest = 1;
+  // Defines the protocol type. E.g., ProtocolFROSTSign.ToString() (see protocol.go)
+  string protocol = 2;
+  // The committee members involved in the signing process. 
+  // Each member should be an Ethereum address.
+  // TODO: Support any TypedKey type.
+  repeated TypedKey committee = 3; 
+}
+
+message SignResponse {
+  oneof response {
+    // can be translated to either frost or ecdsa signature. depends on the protocol used.
+    SignatureData signature = 1; // M represents the SignRequest.digest.
+    SignStatus status = 2;
+  }
+}
+
+message SignStatus {
+  // The status code, which should be an enum value of
+  // [google.rpc.Code][google.rpc.Code].
+  int32 code = 1;
+
+  // A developer-facing error message, which should be in English. Any
+  // user-facing error message should be localized and sent in the
+  // [google.rpc.Status.details][google.rpc.Status.details] field, or localized
+  // by the client.
+  string message = 2;
+
+  // The digest from the SignRequest.
+  bytes digest = 3;
+  // The protocol from the SignRequest.
+  string protocol = 4;
+
+  // optional additional details message.
+  google.protobuf.Any details = 5;
+}
+
+// ErrorDetails contains additional information about an error that occurred during the signing process.
+message ErrorDetails {
+	string task=1; // e.g., function name where the error occurred
+	int32 round=2; // -1 if not applicable
+  repeated PartyID culprits=3; // parties responsible for the error. Optional.
+}
+
+// WarningDetails contains information about a warning that occurred during the signing process.
+message WarningDetails {
+	repeated PartyID culprits = 1;
+	int32    round = 2;
+}
+
+message PublicDataRequest {}
+
+message PublicData {
+  // the frost public data is a public key for schnorr-based FROST signatures that are adjusted to 
+  // EVM's ecrecover.
+  bytes frost_public_data = 1;
+  // the ecdsa public data is a public key for ecdsa-based signatures.
+  bytes ecdsa_public_data = 2;
+}
+
+message VerifySignatureRequest {
+  SignatureData signature = 1;
+  // PublicData the signature should be verified against.
+  // NOTE, a signature can be valid but not the output of the requested signer.
+  PublicData public_data = 2;
+}
+
+message VerifySignatureResponse {
+  bool is_valid = 1;
+}
+
+message UpdateKeysRequest{
+  // The pairs array cannot be empty, it shouldn't contain duplicated keys, or an
+  // escalating change (i.e., pairs[0] is an update that pairs[1] uses).
+  // All pairs should contain keys the signer recognize before the call to UpdateKeys.
+  // Anything else would lead to an error.
+  repeated UpdateKeyPair pairs = 1; 
+}
+
+message TypedKey {
+  enum KeyType {
+    Unspecified = 0; // default, should not be used.
+    EthKey = 1;      // Ethereum address (public key, 20 bytes).
+    CertKey = 2;     // A self-signed certificate used for TLS authentication of peers.
+  } 
+  // Type of the key.
+  KeyType type = 1;
+  // Key in byte representation.
+  bytes key = 2;
+}
+
+// UpdateKeyPair is used to update one key in the pair.
+// Set known_key with a key the signer should be able to recognize.
+// Set update_key with a key to change in the signer's inner key to peer mapping.
+message UpdateKeyPair {
+   TypedKey known_key = 1;
+   TypedKey update_key = 2;
+}
+
+message UpdateKeysResponse {}
